@@ -125,6 +125,7 @@ export default function Account({ session }: { session: Session }) {
 const styles = StyleSheet.create({
   container: {
     marginTop: 50,
+    paddingTop: 80,
     padding: 12,
     backgroundColor: 'white'
   },

@@ -27,6 +27,9 @@ export default function TabNavigator() {
           },
           tabBarActiveTintColor: '#007bff',
           tabBarInactiveTintColor: 'gray',
+          tabBarShowLabel: false,
+          headerShown: false,
+          tabBarIconStyle: { marginTop: 14 },
         })}
       >
         <Tab.Screen name="Main" component={MainScreen} />
