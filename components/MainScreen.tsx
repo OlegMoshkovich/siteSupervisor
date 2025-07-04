@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, TextInput, Pressable, FlatList, Dimensions, Alert, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Pressable, FlatList, Dimensions, Alert, ActivityIndicator, Image } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '../lib/supabase';
@@ -260,6 +260,13 @@ export default function MainScreen() {
           </TouchableOpacity>
         </View>
       )}
+      {/* PNG logo at the bottom */}
+      <View style={{ position: 'absolute', bottom: 40, left: 0, width: '100%', alignItems: 'center', zIndex: 1 }} pointerEvents="none">
+        <Image
+          source={require('../assets/cloneit.png')}
+          style={{ width: width * 0.8, height: 50, resizeMode: 'contain' }}
+        />
+      </View>
     </View>
   );
 } 
