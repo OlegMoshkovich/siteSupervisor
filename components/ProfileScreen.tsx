@@ -34,8 +34,8 @@ export default function ProfileScreen({ session }: ProfileScreenProps) {
           borderWidth: 1,
           borderColor: '#007bff',
         }}
-        activeOpacity={0.7}
-        onPress={() => navigation.navigate('Main')}
+        activeOpacity={0.7}       
+        onPress={() => navigation.navigate('Tabs' as never)}
       >
         <Ionicons name="arrow-back" size={24} color="grey" />
       </TouchableOpacity>
