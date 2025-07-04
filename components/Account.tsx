@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { StyleSheet, View, Alert, TouchableOpacity, Text } from 'react-native'
+import { StyleSheet, View, Alert, TouchableOpacity, Text, ActivityIndicator } from 'react-native'
 import { Input } from '@rneui/themed'
 import { Session } from '@supabase/supabase-js'
 import Avatar from './Avatar'
 
 export default function Account({ session }: { session: Session }) {
   const [loading, setLoading] = useState(true)
+  const [signingOut, setSigningOut] = useState(false)
   const [username, setUsername] = useState('')
   const [website, setWebsite] = useState('')
   const [avatarUrl, setAvatarUrl] = useState('')
@@ -78,6 +79,12 @@ export default function Account({ session }: { session: Session }) {
     }
   }
 
+  async function handleSignOut() {
+    setSigningOut(true)
+    await supabase.auth.signOut()
+    setSigningOut(false)
+  }
+
   return (
     <View style={styles.container}>
       <View>
@@ -113,9 +120,14 @@ export default function Account({ session }: { session: Session }) {
       <View style={styles.verticallySpaced}>
         <TouchableOpacity
           style={styles.customButton}
-          onPress={() => supabase.auth.signOut()}
+          onPress={handleSignOut}
+          disabled={signingOut}
         >
-          <Text style={styles.buttonText}>Sign Out</Text>
+          {signingOut ? (
+            <ActivityIndicator color="#fff" />
+          ) : (
+            <Text style={styles.buttonText}>Sign Out</Text>
+          )}
         </TouchableOpacity>
       </View>
     </View>
@@ -124,8 +136,8 @@ export default function Account({ session }: { session: Session }) {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 50,
-    paddingTop: 80,
+    marginTop: 0,
+    paddingTop: 40,
     padding: 12,
     backgroundColor: 'white'
   },

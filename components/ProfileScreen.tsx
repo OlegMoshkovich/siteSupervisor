@@ -1,31 +1,44 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, TouchableOpacity } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
+import type { StackNavigationProp } from '@react-navigation/stack';
 import Account from './Account';
-import { supabase } from '../lib/supabase';
 import { Session } from '@supabase/supabase-js';
 
-export default function ProfileScreen() {
-  // You may want to get the session from context or props in a real app
-  // For now, just render a placeholder
-  // Replace this with your actual session logic
-  const [session, setSession] = React.useState<Session | null>(null);
+// Define the stack param list
+type RootStackParamList = {
+  Tabs: undefined;
+  Profile: undefined;
+};
 
-  React.useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-    });
-  }, []);
+interface ProfileScreenProps {
+  session: Session;
+}
 
-  if (!session) {
-    return (
-      <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-        <Text>Loading Profile...</Text>
-      </View>
-    );
-  }
+export default function ProfileScreen({ session }: ProfileScreenProps) {
+  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
 
   return (
-    <View style={{ backgroundColor: 'white', height: '100%' }}>
+    <View>
+      <TouchableOpacity
+        style={{
+          width: 40,
+          height: 40,
+          borderRadius: 20,
+          backgroundColor: '#f9f9f9',
+          alignItems: 'center',
+          justifyContent: 'center',
+          marginLeft: 20,
+          marginTop: 80,
+          borderWidth: 1,
+          borderColor: '#007bff',
+        }}
+        activeOpacity={0.7}
+        onPress={() => navigation.navigate('Main')}
+      >
+        <Ionicons name="arrow-back" size={24} color="grey" />
+      </TouchableOpacity>
       <Account session={session} />
     </View>
   );

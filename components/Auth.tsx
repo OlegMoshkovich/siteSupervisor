@@ -91,7 +91,7 @@ export default function Auth() {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 50,
+    marginTop: 100,
     padding: 12,
   },
   verticallySpaced: {
