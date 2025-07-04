@@ -230,8 +230,8 @@ export default function MainScreen() {
       {showSearchBar && (
         <View
           style={{
-            position: 'absolute',
-            bottom: 100,
+            // position: 'absolute',
+            // bottom: 100,
             zIndex: 10,
             flexDirection: 'row',
             alignItems: 'center',
@@ -240,7 +240,7 @@ export default function MainScreen() {
             borderRadius: 40,
             paddingHorizontal: 16,
             backgroundColor: '#f5f5f5',
-            width: 300,
+            width: '82%',
             height: 48,
           }}
         >

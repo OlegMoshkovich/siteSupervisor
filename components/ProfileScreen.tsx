@@ -13,14 +13,15 @@ type RootStackParamList = {
 };
 
 interface ProfileScreenProps {
+  navigation: StackNavigationProp<RootStackParamList, 'Profile'>;
+  route: any;
   session: Session;
 }
 
-export default function ProfileScreen({ session }: ProfileScreenProps) {
-  const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
-
+export default function ProfileScreen({ navigation, session }: ProfileScreenProps) {
+  console.log('ProfileScreen rendered', { session });
   return (
-    <View>
+    <View style={{ backgroundColor: 'white', height: '100%' }}>
       <TouchableOpacity
         style={{
           width: 40,
@@ -34,8 +35,8 @@ export default function ProfileScreen({ session }: ProfileScreenProps) {
           borderWidth: 1,
           borderColor: '#007bff',
         }}
-        activeOpacity={0.7}       
-        onPress={() => navigation.navigate('Tabs' as never)}
+        activeOpacity={0.7}
+        onPress={() => navigation.navigate('Tabs')}
       >
         <Ionicons name="arrow-back" size={24} color="grey" />
       </TouchableOpacity>
