@@ -30,7 +30,7 @@ type PhotoWithUrl = {
   dataUrl: string | null;
 };
 
-export default function MainScreen(props: any) {
+export default function RetrieveScreen(props: any) {
   const navigation = useNavigation<BottomTabNavigationProp<TabParamList>>();
   const [selectedProject, setSelectedProject] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -170,13 +170,13 @@ export default function MainScreen(props: any) {
         </TouchableOpacity>
       </View>
 
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 180, width: '86%' }}>
+      {/* <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 180, width: '86%' }}>
         {selectedProject &&
           [
             { icon: 'document-text', onPress: undefined, disabled: false },
             { icon: 'camera', onPress: handlePickAndUpload, disabled: uploading, isUploading: true },
             { icon: 'mic', onPress: undefined, disabled: false },
-            // { icon: 'search', onPress: () => setShowSearchBar(!showSearchBar), disabled: false },
+            { icon: 'search', onPress: () => setShowSearchBar(!showSearchBar), disabled: false },
           ].map((item, idx) => (
             <TouchableOpacity
               key={idx}
@@ -204,10 +204,10 @@ export default function MainScreen(props: any) {
               </View>
             </TouchableOpacity>
           ))}
-      </View>
-{/* 
-      {showSearchBar && selectedProject && (
-        <View style={{ marginTop: 20 }}>
+      </View> */}
+
+      {selectedProject && (
+        <View style={{ marginTop: 180}}>
           <View style={{ flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#009fe3', borderRadius: 40, paddingHorizontal: 16, backgroundColor: '#f5f5f5', width: '82%', marginBottom: 20 }}>
             <TextInput
               style={{ flex: 1, height: 42, paddingLeft: 8 }}
@@ -229,7 +229,7 @@ export default function MainScreen(props: any) {
             }}
           />
         </View>
-      )} */}
+      )}
 
       <DynamicDialog
         visible={dialogVisible}
@@ -256,7 +256,7 @@ export default function MainScreen(props: any) {
                 <Image
                   key={photo.id}
                   source={{ uri: photo.dataUrl }}
-                  style={{ width: 100, height: 100, marginBottom: 10, borderRadius: 8, alignSelf: 'center' }}
+                  style={{ width: 300, height: 300, marginBottom: 10, borderRadius: 8, alignSelf: 'center' }}
                 />
               ) : null
             )}

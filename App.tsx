@@ -3,6 +3,7 @@ import { supabase } from './lib/supabase';
 import Auth from './components/Auth';
 import TabNavigator from './navigation/TabNavigator';
 import ProfileScreen from './components/ProfileScreen';
+
 import { Session } from '@supabase/supabase-js';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
