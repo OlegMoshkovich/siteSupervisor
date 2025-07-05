@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Image } from 'react-native';
+import { Dimensions } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
@@ -20,6 +21,7 @@ interface ProfileScreenProps {
 
 export default function ProfileScreen({ navigation, session }: ProfileScreenProps) {
   console.log('ProfileScreen rendered', { session });
+  const { width } = Dimensions.get('window');
   return (
     <View style={{ backgroundColor: 'white', height: '100%' }}>
       <TouchableOpacity
@@ -33,7 +35,7 @@ export default function ProfileScreen({ navigation, session }: ProfileScreenProp
           marginLeft: 20,
           marginTop: 80,
           borderWidth: 1,
-          borderColor: '#007bff',
+          borderColor: '#009fe3',
         }}
         activeOpacity={0.7}
         onPress={() => navigation.navigate('Tabs')}

@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Alert, StyleSheet, View, AppState, TouchableOpacity, Text } from 'react-native'
+import { Alert, StyleSheet, View, AppState, TouchableOpacity, Text, Image, Dimensions } from 'react-native'
 import { supabase } from '../lib/supabase'
 import { Input } from '@rneui/themed'
 
@@ -19,7 +19,7 @@ export default function Auth() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [loading, setLoading] = useState(false)
-
+  const { width } = Dimensions.get('window');
   async function signInWithEmail() {
     setLoading(true)
     const { error } = await supabase.auth.signInWithPassword({
@@ -53,8 +53,9 @@ export default function Auth() {
           label="Email"
           onChangeText={(text) => setEmail(text)}
           value={email}
-          placeholder="email@address.com"
+          placeholder="Email"
           autoCapitalize={'none'}
+          labelStyle={{ color: '#009fe3', fontSize: 16, fontWeight: 400, display: 'none' }}
         />
       </View>
       <View style={styles.verticallySpaced}>
@@ -65,6 +66,8 @@ export default function Auth() {
           secureTextEntry={true}
           placeholder="Password"
           autoCapitalize={'none'}
+          labelStyle={{ color: '#009fe3', fontSize: 16, fontWeight: 400, display: 'none' }}
+          style={{  borderColor: '#009fe3', borderRadius: 30, paddingVertical: 12, backgroundColor: 'white' }}
         />
       </View>
       <View style={[styles.verticallySpaced, styles.mt20]}>
@@ -78,12 +81,18 @@ export default function Auth() {
       </View>
       <View style={styles.verticallySpaced}>
         <TouchableOpacity
-          style={[styles.customButton, { borderWidth: 1, borderColor: 'blue', backgroundColor: 'white' }]}
+          style={[styles.customButton, { borderWidth: 1, borderColor: '#009fe3', backgroundColor: 'white' }]}
           disabled={loading}
           onPress={signUpWithEmail}
         >
-          <Text style={[styles.buttonText, { color: 'blue' }]}>Sign up</Text>
+          <Text style={[styles.buttonText, { color: '#009fe3' }]}>Sign up</Text>
         </TouchableOpacity>
+      </View>
+      <View style={{ position: 'absolute', bottom: -300, left: 0, width: '100%', alignItems: 'center', zIndex: 1 }} pointerEvents="none">
+        <Image
+          source={require('../assets/cloneit.png')}
+          style={{ width: width * 0.8, height: 50, resizeMode: 'contain' }}
+        />
       </View>
     </View>
   )
@@ -100,10 +109,10 @@ const styles = StyleSheet.create({
     alignSelf: 'stretch',
   },
   mt20: {
-    marginTop: 20,
+    marginTop: 50,
   },
   customButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#009fe3',
     borderRadius: 30,
     paddingVertical: 12,
     paddingHorizontal: 32,

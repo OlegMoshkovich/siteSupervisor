@@ -5,6 +5,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '../lib/supabase';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import DropDown from './DropDown';
+import DynamicDialog from './DynamicDialog';
 
 // Define the tab param list
 type TabParamList = {
@@ -17,10 +19,12 @@ export default function MainScreen() {
   const [selectedProject, setSelectedProject] = useState('');
   const [showDropdown, setShowDropdown] = useState(false);
   const [uploading, setUploading] = useState(false);
-  const [showSearchBar, setShowSearchBar] = useState(false);
-  const projects = ['Project 1', 'Project 2', 'Project 3', 'Project 4'];
+  const [showSearchBar, setShowSearchBar] = useState(true);
   const { width, height } = Dimensions.get('window');
-
+  const [selectedDate, setSelectedDate] = useState('');
+  const [showDateDropdown, setShowDateDropdown] = useState(false);
+  const [dialogVisible, setDialogVisible] = useState(false);
+  
   const handlePickAndUpload = async () => {
     console.log('Starting handlePickAndUpload');
     // Request permission
@@ -63,13 +67,21 @@ export default function MainScreen() {
           return;
         }
 
+        // Get the authenticated user id
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) {
+          Alert.alert('Upload failed', 'User not authenticated');
+          setUploading(false);
+          return;
+        }
+
         // Insert into photos table
         const { error: insertError } = await supabase
           .from('photos')
           .insert([
             {
               project_id: null, // or a real project_id if you have one
-              user_id: null,    // or the current user's id
+              user_id: user.id,    // set to the current user's id
               url: uploadData.path,
               metadata: { note: 'Test upload from library' }
             }
@@ -94,72 +106,12 @@ export default function MainScreen() {
     <View style={{ flex: 1, alignItems: 'center', justifyContent: 'flex-start', backgroundColor: 'white', paddingTop: 80 }}>
       <View style={{ width: '86%', flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
         <View style={{ flex: 1 }}>
-          <TouchableOpacity
-            activeOpacity={0.8}
-            onPress={() => setShowDropdown(true)}
-          >
-            <View style={{
-              borderWidth: 1,
-              borderColor: '#007bff',
-              borderRadius: 120,
-              backgroundColor: '#f9f9f9',
-              paddingHorizontal: 12,
-            }}>
-              <Text style={{ height: 40, lineHeight: 40, color: selectedProject ? '#222' : '#888' }}>
-                {selectedProject || 'Choose a project...'}
-              </Text>
-            </View>
-          </TouchableOpacity>
-          {showDropdown && (
-            <>
-              <Pressable
-                style={{
-                  position: 'absolute',
-                  top: 0,
-                  left: 0,
-                  width,
-                  height,
-                  zIndex: 9,
-                }}
-                onPress={() => setShowDropdown(false)}
-              />
-              <View style={{
-                position: 'absolute',
-                top: 60,
-                left: 0,
-                width: '100%',
-                backgroundColor: 'white',
-                borderWidth: 1,
-                borderColor: '#007bff',
-                borderRadius: 8,
-                zIndex: 10,
-                shadowColor: '#000',
-                shadowOpacity: 0.1,
-                shadowRadius: 8,
-                elevation: 4,
-              }}>
-                <FlatList
-                  data={projects}
-                  keyExtractor={(item) => item}
-                  renderItem={({ item, index }) => (
-                    <TouchableOpacity
-                      onPress={() => {
-                        setSelectedProject(item);
-                        setShowDropdown(false);
-                      }}
-                      style={{
-                        padding: 10,
-                        borderBottomWidth: index < projects.length - 1 ? 1 : 0,
-                        borderBottomColor: '#eee',
-                      }}
-                    >
-                      <Text>{item}</Text>
-                    </TouchableOpacity>
-                  )}
-                />
-              </View>
-            </>
-          )}
+          <DropDown
+            items={['Project 1', 'Project 2', 'Project 3', 'Project 4']}
+            selectedItem={selectedProject}
+            setSelectedItem={setSelectedProject}
+            placeholder="Select a project"
+          />
         </View>
         <TouchableOpacity
           style={{
@@ -171,7 +123,7 @@ export default function MainScreen() {
             justifyContent: 'center',
             marginLeft: 12,
             borderWidth: 1,
-            borderColor: '#007bff',
+            borderColor: '#009fe3',
           }}
           activeOpacity={0.7}
           onPress={() => navigation.navigate('Profile')}
@@ -185,83 +137,128 @@ export default function MainScreen() {
           flexWrap: 'wrap',
           justifyContent: 'center',
           alignItems: 'center',
-          marginVertical: 16,
+          marginVertical: 50,
           width: '86%',
-          marginTop: 200,
+          marginTop: 180,
         }}
       >
-        {[
-          { icon: 'document-text', onPress: undefined, disabled: false, color: 'grey' },
-          { icon: 'camera', onPress: handlePickAndUpload, disabled: uploading, color: 'darkGrey', isUploading: true },
-          { icon: 'mic', onPress: undefined, disabled: false, color: 'grey' },
-          { icon: 'search', onPress: () => setShowSearchBar(!showSearchBar), disabled: false, color: !showSearchBar ? 'grey' : 'darkGrey' },
-          // Add more items here if you want to fill out the 4x4 grid (16 items)
-        ].concat(Array(0).fill({ icon: null })).map((item, idx) => (
-          <TouchableOpacity
-            key={idx}
-            onPress={item.onPress}
-            disabled={item.disabled}
-            style={{
-              margin: 6,
-              opacity: item.disabled ? 0.5 : 1,
-            }}
-          >
-            <View
+        {selectedProject ? (
+          [
+            { icon: 'document-text', onPress: undefined, disabled: false, color: 'grey' },
+            { icon: 'camera', onPress: handlePickAndUpload, disabled: uploading, color: 'grey', isUploading: true },
+            { icon: 'mic', onPress: undefined, disabled: false, color: 'grey' },
+            { icon: 'search', onPress: () => setShowSearchBar(!showSearchBar), disabled: false, color: !showSearchBar ? 'grey' : 'darkGrey' },
+            // Add more items here if you want to fill out the 4x4 grid (16 items)
+          ].concat(Array(0).fill({ icon: null })).map((item, idx) => (
+            <TouchableOpacity
+              key={idx}
+              onPress={item.onPress}
+              disabled={item.disabled}
               style={{
-                width: 70,
-                height: 70,
-                borderRadius: 35,
-                borderWidth: 1,
-                borderColor: '#007bff',
-                alignItems: 'center',
-                justifyContent: 'center',
-                backgroundColor: 'white',
+                margin: 6,
+                opacity: item.disabled ? 0.5 : 1,
               }}
             >
-              {item.icon === 'camera' && item.isUploading && uploading ? (
-                <ActivityIndicator size="large" color="#007bff" />
-              ) : item.icon ? (
-                <Ionicons name={item.icon} size={32} color={item.color} />
-              ) : null}
-            </View>
-          </TouchableOpacity>
-        ))}
+              <View
+                style={{
+                  width: 70,
+                  height: 70,
+                  borderRadius: 35,
+                  borderWidth: 1,
+                  borderColor: '#009fe3',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  backgroundColor: 'white',
+                }}
+              >
+                {item.icon === 'camera' && item.isUploading && uploading ? (
+                  <ActivityIndicator size="large" color="#009fe3" />
+                ) : item.icon ? (
+                  <Ionicons name={item.icon} size={32} color={item.color} />
+                ) : null}
+              </View>
+            </TouchableOpacity>
+          ))
+        ) : null}
       </View>
-      {showSearchBar && (
+      {showSearchBar && selectedProject  && ( 
+        <View>
         <View
           style={{
-            // position: 'absolute',
-            // bottom: 100,
+
             zIndex: 10,
             flexDirection: 'row',
             alignItems: 'center',
             borderWidth: 1,
-            borderColor: '#007bff',
+            borderColor: '#009fe3',
             borderRadius: 40,
             paddingHorizontal: 16,
             backgroundColor: '#f5f5f5',
             width: '82%',
-            height: 48,
+            marginBottom: 20,
           }}
         >
           <TextInput
             style={{
               flex: 1,
-              height: 40,
+              height: 42,
               borderRadius: 40,
               paddingLeft: 8,
               backgroundColor: 'transparent',
             }}
-            placeholder="Search..."
+            placeholder="Search in a project..."
             placeholderTextColor="#888"
           />
           <TouchableOpacity >
             <Ionicons name="arrow-forward" size={24} color="#333" />
           </TouchableOpacity>
         </View>
+        <DropDown
+        items={['June 1', 'June 2', 'June 3', 'June 4',]}
+        selectedItem={selectedDate}
+        placeholder="Select a date to access photos and notes"
+          setSelectedItem={(date) => {
+              setSelectedDate(date);
+            setShowDateDropdown(false);
+            if (date) setDialogVisible(true);
+          }}
+        />
+        </View>
       )}
+      <DynamicDialog
+        visible={dialogVisible}
+        headerProps={{
+          title: 'Selected date: ' + selectedDate,
+          style: {
+            paddingHorizontal: 16,
+          },
+          titleStyle: {
+            color: '#009fe3',
+          },
+          headerAsButton: true,
+          rightActionElement: 'Close',
+          onRightAction: () => {
+            setDialogVisible(false);
+            setSelectedDate('');
+          },
+          onHeaderPress: () => {
+            setDialogVisible(false);
+            setSelectedDate('');
+          },
+          onBackAction: () => {
+            setDialogVisible(false);
+            setSelectedDate('');
+          },
+        }}
+        onClose={() => {
+          setDialogVisible(false);
+          setSelectedDate('');
+        }}
+      >
+        <Text>photos and notes</Text>
+      </DynamicDialog>
       {/* PNG logo at the bottom */}
-      <View style={{ position: 'absolute', bottom: 40, left: 0, width: '100%', alignItems: 'center', zIndex: 1 }} pointerEvents="none">
+      <View style={{ position: 'absolute', bottom: 24, left: 0, width: '100%', alignItems: 'center', zIndex: 1 }} pointerEvents="none">
         <Image
           source={require('../assets/cloneit.png')}
           style={{ width: width * 0.8, height: 50, resizeMode: 'contain' }}

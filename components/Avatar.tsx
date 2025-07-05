@@ -99,7 +99,7 @@ export default function Avatar({ url, size = 150, onUpload }: Props) {
       ) : (
         <View style={[avatarSize, styles.avatar, styles.noImage]} />
       )}
-      <View>
+      {/* <View>
         <TouchableOpacity
           style={[styles.uploadButton, uploading && styles.disabledButton]}
           onPress={uploadAvatar}
@@ -107,7 +107,7 @@ export default function Avatar({ url, size = 150, onUpload }: Props) {
         >
           <Text style={styles.uploadButtonText}>{uploading ? 'Uploading ...' : 'Upload'}</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
     </View>
   )
 }

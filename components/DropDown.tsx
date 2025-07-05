@@ -1,0 +1,87 @@
+import React, { useState } from 'react';
+import { View, TouchableOpacity, Text, Pressable, FlatList, Dimensions } from 'react-native';
+
+interface DropDownProps {
+  items: string[];
+  selectedItem: string;
+  setSelectedItem: (item: string) => void;
+  placeholder: string;
+}
+
+const DropDown: React.FC<DropDownProps> = ({ items, selectedItem, setSelectedItem, placeholder }) => {
+  const [showDropdown, setShowDropdown] = useState(false);
+  const { width, height } = Dimensions.get('window');
+
+  return (
+    <View style={{ flex: 1 }}>
+      <TouchableOpacity
+        activeOpacity={0.8}
+        onPress={() => setShowDropdown(true)}
+      >
+        <View style={{
+          borderWidth: 1,   
+          borderColor: '#009fe3',
+          borderRadius: 20,
+          backgroundColor: '#f9f9f9',
+          paddingHorizontal: 12,
+        }}>
+          <Text style={{ height: 40, lineHeight: 40, color: selectedItem ? '#222' : '#888' }}>
+            {selectedItem || placeholder}
+          </Text>
+        </View>
+      </TouchableOpacity>
+      {showDropdown && (
+        <>
+          <Pressable
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width,
+              height,
+              zIndex: 9,
+            }}
+            onPress={() => setShowDropdown(false)}
+          />
+          <View style={{
+            position: 'absolute',
+            top: 60,
+            left: 0,
+            width: '100%',
+            backgroundColor: 'white',
+            borderWidth: 1,
+            borderColor: '#009fe3',
+            borderRadius: 20,
+            zIndex: 10,
+            shadowColor: '#000',
+            shadowOpacity: 0.1,
+            shadowRadius: 8,
+            elevation: 4,
+          }}>
+            <FlatList
+              data={items}
+              keyExtractor={(item) => item}
+              renderItem={({ item, index }) => (
+                <TouchableOpacity
+                  onPress={() => {
+                    setSelectedItem(item);
+                    setShowDropdown(false);
+                  }}
+                  style={{
+                    padding: 10,
+                    borderBottomWidth: index < items.length - 1 ? 1 : 0,
+                    borderBottomColor: '#eee',
+                  }}
+                >
+                  <Text>{item}</Text>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </>
+      )}
+    </View>
+  );
+};
+
+export default DropDown;

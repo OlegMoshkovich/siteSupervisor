@@ -98,13 +98,19 @@ export default function Account({ session }: { session: Session }) {
         />
       </View>
       <View style={[styles.verticallySpaced, styles.mt20]}>
-        <Input label="Email" value={session?.user?.email} disabled />
+        <Input 
+         labelStyle={{ color: '#009fe3', fontSize: 16, fontWeight: 400, }}
+        label="Email" value={session?.user?.email} disabled />
       </View>
       <View style={styles.verticallySpaced}>
-        <Input label="Name" value={username || ''} onChangeText={(text) => setUsername(text)} />
+        <Input 
+        labelStyle={{ color: '#009fe3', fontSize: 16, fontWeight: 400, }}
+        label="Name" value={username || ''} onChangeText={(text) => setUsername(text)} />
       </View>
       <View style={styles.verticallySpaced}>
-        <Input label="Company" value={website || ''} onChangeText={(text) => setWebsite(text)} />
+        <Input 
+             labelStyle={{ color: '#009fe3', fontSize: 16, fontWeight: 400, }}
+        label="Company" value={website || ''} onChangeText={(text) => setWebsite(text)} />
       </View>
 
       <View style={[styles.verticallySpaced, styles.mt20]}>
@@ -152,7 +158,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'white'
   },
   customButton: {
-    backgroundColor: '#007bff',
+    backgroundColor: '#009fe3',
     borderRadius: 40,
     paddingVertical: 12,
     paddingHorizontal: 32,
