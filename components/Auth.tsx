@@ -49,6 +49,12 @@ export default function Auth() {
 
   return (
     <View style={styles.container}>
+      <View style={{ position: 'absolute', top: -30, left: 0, width: '100%', alignItems: 'center', zIndex: 1 }} pointerEvents="none">
+        <Image
+          source={require('../assets/cloneit.png')}
+          style={{ width: width * 0.8, height: 50, resizeMode: 'contain' }}
+        />
+      </View>
       <View style={[styles.verticallySpaced, styles.mt20]}>
         <Input
           label="Email"
@@ -56,7 +62,8 @@ export default function Auth() {
           value={email}
           placeholder="Email"
           autoCapitalize={'none'}
-          labelStyle={{ color: colors.primary, fontSize: 16, fontWeight: 400, display: 'none' }}
+          style={{  fontSize: 14, borderColor: colors.primary, paddingVertical: 12, backgroundColor: 'white' }}
+          labelStyle={{  display: 'none' }}
         />
       </View>
       <View style={styles.verticallySpaced}>
@@ -67,13 +74,13 @@ export default function Auth() {
           secureTextEntry={true}
           placeholder="Password"
           autoCapitalize={'none'}
-          labelStyle={{ color: colors.primary, fontSize: 16, fontWeight: 400, display: 'none' }}
-          style={{  borderColor: colors.primary, borderRadius: 30, paddingVertical: 12, backgroundColor: 'white' }}
+          labelStyle={{  display: 'none' }}
+          style={{  fontSize: 14, borderColor: colors.primary, paddingVertical: 12, backgroundColor: 'white' }}
         />
       </View>
-      <View style={[styles.verticallySpaced, styles.mt20]}>
+      <View style={[styles.verticallySpaced, styles.mt20,{width: '60%', alignSelf: 'center'}]}>
         <TouchableOpacity
-          style={styles.customButton}
+          style={[styles.customButton,{backgroundColor: '#009FE3'}]}
           disabled={loading}
           onPress={signInWithEmail}
         >
@@ -82,32 +89,27 @@ export default function Auth() {
       </View>
       <View style={styles.verticallySpaced}>
         <TouchableOpacity
-          style={[styles.customButton, { borderWidth: .5, borderColor: colors.primary, backgroundColor: 'black ' }]}
+          style={[styles.customButton, { width: '60%', alignSelf: 'center', borderWidth: .5, borderColor: colors.primary, backgroundColor: 'black ' }]}
           disabled={loading}
           onPress={signUpWithEmail}
         >
           <Text style={[styles.buttonText, { color: colors.primary }]}>Sign up</Text>
         </TouchableOpacity>
       </View>
-      <View style={{ position: 'absolute', bottom: -300, left: 0, width: '100%', alignItems: 'center', zIndex: 1 }} pointerEvents="none">
-        <Image
-          source={require('../assets/cloneit.png')}
-          style={{ width: width * 0.8, height: 50, resizeMode: 'contain' }}
-        />
-      </View>
+      
     </View>
   )
 }
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 100,
+    marginTop: 200,
     padding: 12,
   },
   verticallySpaced: {
     paddingTop: 4,
     paddingBottom: 4,
-    alignSelf: 'stretch',
+    // alignSelf: 'stretch',
   },
   mt20: {
     marginTop: 50,

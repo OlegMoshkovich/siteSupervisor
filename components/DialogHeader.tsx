@@ -158,10 +158,10 @@ const styles = StyleSheet.create({
     fontWeight: "400",
   },
   bottomBorder: {
-    width: "100%",
+    width: "90%",
     alignSelf: "center",
-    borderBottomWidth: 1,
-    borderBottomColor: "rgba(255,255,255,0.12)",
+    // borderBottomWidth: .5,
+    // borderBottomColor: "black",
   },
 });
 

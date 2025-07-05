@@ -22,7 +22,7 @@ const DynamicDialog: React.FC<DynamicDialogProps> = ({
   visible = false,
   onClose,
   children,
-  height = 84,
+  height = 82,
   showCloseButton = true,
   headerProps,
   enableCloseOnBackgroundPress = true,
@@ -67,8 +67,8 @@ const DynamicDialog: React.FC<DynamicDialogProps> = ({
               backgroundColor: 'white',
               borderWidth: .5,
               borderColor: 'colors.primary',
-              borderTopLeftRadius: 10,
-              borderTopRightRadius: 10,
+              borderTopLeftRadius: 6,
+              borderTopRightRadius: 6,
               borderBottomLeftRadius: 0,
               borderBottomRightRadius: 0,
             }}
@@ -89,9 +89,11 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     overflow: "hidden",
-    marginBottom: 76,
+    marginBottom: 87,
     paddingTop: 0,
     paddingHorizontal: 3,
+    // borderWidth: .5,
+    // borderColor: 'colors.primary',
   },
   closeButton: {
     position: "absolute",
@@ -117,7 +119,8 @@ const styles = StyleSheet.create({
     flex: 1,
     alignSelf: "center",
     paddingVertical: 20,
-    width: "90%",
+    width: "100%",
+    backgroundColor: 'white',
   },
 });
 

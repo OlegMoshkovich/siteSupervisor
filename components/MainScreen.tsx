@@ -3,7 +3,6 @@ import {
   View,
   Text,
   TouchableOpacity,
-  TextInput,
   ScrollView,
   Dimensions,
   Alert,
@@ -153,7 +152,7 @@ export default function MainScreen(props: any) {
           setSelectedItem={setSelectedProject}
           placeholder="Select a project"
         />
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={{
             width: 40,
             height: 40,
@@ -168,109 +167,62 @@ export default function MainScreen(props: any) {
           onPress={() => navigation.navigate('Profile')}
         >
           <Ionicons name="person" size={24} color="grey" />
-        </TouchableOpacity>
+        </TouchableOpacity> */}
       </View>
 
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 180, width: '86%' }}>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 200, width: '86%' }}>
         {selectedProject &&
           [
             { icon: 'document-text', onPress: undefined, disabled: false },
             { icon: 'camera', onPress: handlePickAndUpload, disabled: uploading, isUploading: true },
             { icon: 'mic', onPress: undefined, disabled: false },
-            // { icon: 'search', onPress: () => setShowSearchBar(!showSearchBar), disabled: false },
           ].map((item, idx) => (
             <TouchableOpacity
               key={idx}
               onPress={item.onPress}
               disabled={item.disabled}
-              style={{ margin: 6, opacity: item.disabled ? 0.5 : 1 }}
+              style={{
+                margin: 6,
+                // opacity: item.disabled ? 0.5 : 1,
+                width: 91, // ~5.7em at 16px base
+                height: 91,
+                borderRadius: 1000,
+                // backgroundColor: '#d42a02',
+                backgroundColor: '#545251',
+                borderWidth: 0,
+                // backgroundColor: '#c7c3c0',
+                shadowColor: '#000',
+                shadowOffset: { width: 10, height: 10 },
+                shadowOpacity: 0.2,
+                shadowRadius: 8,
+                elevation: 8,
+                // Simulate inner shadow/highlight with border and overlay
+                // (React Native doesn't support inset shadow, so we approximate)
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
             >
               <View
                 style={{
                   width: 90,
                   height: 90,
                   borderRadius: 45,
-                  borderWidth: 2,
+                //   borderWidth: .5,
                   borderColor: colors.primary,
                   alignItems: 'center',
                   justifyContent: 'center',
-                  backgroundColor: 'white',
+                //   backgroundColor: 'white',
                 }}
               >
                 {item.icon === 'camera' && item.isUploading && uploading ? (
                   <ActivityIndicator size="large" color={colors.primary} />
                 ) : (
-                  <Ionicons name={item.icon as any} size={32} color="grey" />
+                  <Ionicons name={item.icon as any} size={32} color="white" />
                 )}
               </View>
             </TouchableOpacity>
           ))}
       </View>
-{/* 
-      {showSearchBar && selectedProject && (
-        <View style={{ marginTop: 20 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', borderWidth: .5, borderColor: 'colors.primary', borderRadius: 40, paddingHorizontal: 16, backgroundColor: '#f5f5f5', width: '82%', marginBottom: 20 }}>
-            <TextInput
-              style={{ flex: 1, height: 42, paddingLeft: 8 }}
-              placeholder="Search in a project..."
-              placeholderTextColor="#888"
-            />
-            <TouchableOpacity>
-              <Ionicons name="arrow-forward" size={24} color="#333" />
-            </TouchableOpacity>
-          </View>
-
-          <DropDown
-            items={['June 1', 'June 2', 'June 3', 'June 4']}
-            selectedItem={selectedDate}
-            placeholder="Select a date to access photos and notes"
-            setSelectedItem={(date) => {
-              setSelectedDate(date);
-              setDialogVisible(true);
-            }}
-          />
-        </View>
-      )} */}
-
-      <DynamicDialog
-        visible={dialogVisible}
-        headerProps={{
-          title: 'All uploaded photos',
-          style: { paddingHorizontal: 16 },
-          titleStyle: { color: colors.primary },
-          headerAsButton: true,
-          rightActionElement: 'Close',
-          onRightAction: () => setDialogVisible(false),
-          onHeaderPress: () => setDialogVisible(false),
-          onBackAction: () => setDialogVisible(false),
-        }}
-        onClose={() => setDialogVisible(false)}
-      >
-        {photosLoading ? (
-          <ActivityIndicator size="large" color={colors.primary} />
-        ) : photos.length === 0 ? (
-          <Text>No photos available.</Text>
-        ) : (
-          <ScrollView contentContainerStyle={{ padding: 16 }}>
-            {photos.map((photo) =>
-              photo.dataUrl ? (
-                <Image
-                  key={photo.id}
-                  source={{ uri: photo.dataUrl }}
-                  style={{ width: 100, height: 100, marginBottom: 10, borderRadius: 8, alignSelf: 'center' }}
-                />
-              ) : null
-            )}
-          </ScrollView>
-        )}
-      </DynamicDialog>
-
-      {/* <View style={{ position: 'absolute', bottom: 24, left: 0, width: '100%', alignItems: 'center' }} pointerEvents="none">
-        <Image
-          source={require('../assets/cloneit.png')}
-          style={{ width: width * 0.8, height: 50, resizeMode: 'contain' }}
-        />
-      </View> */}
     </View>
   );
 }

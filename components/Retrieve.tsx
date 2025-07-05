@@ -153,73 +153,11 @@ export default function RetrieveScreen(props: any) {
           setSelectedItem={setSelectedProject}
           placeholder="Select a project"
         />
-        <TouchableOpacity
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            backgroundColor: '#f9f9f9',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginLeft: 12,
-            borderWidth: .5,
-            borderColor: colors.primary,
-          }}
-          onPress={() => navigation.navigate('Profile')}
-        >
-          <Ionicons name="person" size={24} color="grey" />
-        </TouchableOpacity>
       </View>
 
-      {/* <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 180, width: '86%' }}>
-        {selectedProject &&
-          [
-            { icon: 'document-text', onPress: undefined, disabled: false },
-            { icon: 'camera', onPress: handlePickAndUpload, disabled: uploading, isUploading: true },
-            { icon: 'mic', onPress: undefined, disabled: false },
-            { icon: 'search', onPress: () => setShowSearchBar(!showSearchBar), disabled: false },
-          ].map((item, idx) => (
-            <TouchableOpacity
-              key={idx}
-              onPress={item.onPress}
-              disabled={item.disabled}
-              style={{ margin: 6, opacity: item.disabled ? 0.5 : 1 }}
-            >
-              <View
-                style={{
-                  width: 70,
-                  height: 70,
-                  borderRadius: 35,
-                  borderWidth: .5,
-                  borderColor: 'colors.primary',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  backgroundColor: 'white',
-                }}
-              >
-                {item.icon === 'camera' && item.isUploading && uploading ? (
-                  <ActivityIndicator size="large" color="colors.primary" />
-                ) : (
-                  <Ionicons name={item.icon as any} size={32} color="grey" />
-                )}
-              </View>
-            </TouchableOpacity>
-          ))}
-      </View> */}
 
       {selectedProject && (
-        <View style={{ marginTop: 180}}>
-          {/* <View style={{ flexDirection: 'row', alignItems: 'center', borderWidth: .5, borderColor: colors.primary, borderRadius: 40, paddingHorizontal: 16, backgroundColor: '#f5f5f5', width: '82%', marginBottom: 20 }}>
-            <TextInput
-              style={{ flex: 1, height: 42, paddingLeft: 8 }}
-              placeholder="Search in a project..."
-              placeholderTextColor="#888"
-            />
-            <TouchableOpacity>
-              <Ionicons name="arrow-forward" size={24} color="#333" />
-            </TouchableOpacity>
-          </View> */}
-
+        <View style={{ marginTop: 220}}>
           <DropDown
             items={['June 1', 'June 2', 'June 3', 'June 4']}
             selectedItem={selectedDate}
@@ -235,10 +173,13 @@ export default function RetrieveScreen(props: any) {
       <DynamicDialog
         visible={dialogVisible}
         headerProps={{
-          title: 'All uploaded photos',
+          title: 'June 2, 2025',
+          rightActionFontSize: 15,
           style: { paddingHorizontal: 16 },
           titleStyle: { color: colors.primary },
           headerAsButton: true,
+          // bottomBorder: true,
+          
           rightActionElement: 'Close',
           onRightAction: () => setDialogVisible(false),
           onHeaderPress: () => setDialogVisible(false),
@@ -264,13 +205,6 @@ export default function RetrieveScreen(props: any) {
           </ScrollView>
         )}
       </DynamicDialog>
-
-      {/* <View style={{ position: 'absolute', bottom: 24, left: 0, width: '100%', alignItems: 'center' }} pointerEvents="none">
-        <Image
-          source={require('../assets/cloneit.png')}
-          style={{ width: width * 0.8, height: 50, resizeMode: 'contain' }}
-        />
-      </View> */}
     </View>
   );
 }

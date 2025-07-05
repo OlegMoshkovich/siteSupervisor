@@ -133,7 +133,7 @@ export default function Account({ session }: { session: Session }) {
           {signingOut ? (
             <ActivityIndicator color="#fff" />
           ) : (
-            <Text style={styles.buttonText}>Sign Out</Text>
+            <Text style={styles.buttonText}>Sign out</Text>
           )}
         </TouchableOpacity>
       </View>
@@ -164,6 +164,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 32,
     alignItems: 'center',
     justifyContent: 'center',
+    width: '60%',
+    alignSelf: 'center',
   },
   buttonText: {
     color: 'black',

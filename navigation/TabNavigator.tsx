@@ -13,7 +13,7 @@ export default function TabNavigator({ session }: { session: Session }) {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: 'colors.primary',
+        tabBarActiveTintColor: '#d42a02',
         tabBarIcon: ({ color, size }) => {
           let iconName = 'home';
           if (route.name === 'Add') iconName = 'add-circle';

@@ -1,6 +1,6 @@
 // Centralized color definitions for the app
 const colors = {
-  primary: 'black',
+  primary: '#545251',
   // Add more colors as needed
 };
 
