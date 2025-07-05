@@ -27,7 +27,7 @@ type TabParamList = {
 type PhotoWithUrl = {
   id: string;
   url: string;
-  signedUrl: string | null;
+  dataUrl: string | null;
 };
 
 export default function MainScreen() {
@@ -60,24 +60,22 @@ export default function MainScreen() {
         setUploading(true);
         const arraybuffer = await fetch(image.uri).then((res) => res.arrayBuffer());
         const fileExt = image.uri.split('.').pop()?.toLowerCase() ?? 'jpeg';
-        const path = `${Date.now()}.${fileExt}`;
+        const filename = `${Date.now()}.${fileExt}`;
 
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('photos')
-          .upload(path, arraybuffer, {
+          .upload(filename, arraybuffer, {
             contentType: image.mimeType ?? 'image/jpeg',
           });
 
         if (uploadError) {
           Alert.alert('Upload failed', uploadError.message);
-          setUploading(false);
           return;
         }
 
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
           Alert.alert('Upload failed', 'User not authenticated');
-          setUploading(false);
           return;
         }
 
@@ -85,7 +83,7 @@ export default function MainScreen() {
           {
             project_id: null,
             user_id: user.id,
-            url: uploadData.path,
+            url: uploadData?.path,
             metadata: { note: 'Test upload from library' },
           },
         ]);
@@ -111,33 +109,34 @@ export default function MainScreen() {
 
       const { data, error } = await supabase.from('photos').select('*');
       if (error) {
-        console.error('Photo fetch error:', error.message);
         setPhotosLoading(false);
         return;
       }
-      console.log('Photos data:', data);
 
-      
-      const signedPhotos = await Promise.all(
-        (data || []).map(async (photo) => {
-          const { data: signed, error: urlError } = await supabase.storage
-            .from('photos')
-            .createSignedUrl(photo.url, 300); // 5 min signed URL
-      
-          if (urlError) {
-            console.error('Signed URL error:', urlError.message);
+      const photosWithDataUrl: PhotoWithUrl[] = await Promise.all(
+        data.map(async (photo) => {
+          try {
+            const { data: fileData, error: fileError } = await supabase.storage.from('photos').download(photo.url);
+            if (fileError || !fileData) {
+              console.log('Download failed for', photo.url, fileError);
+              return { ...photo, dataUrl: null };
+            }
+            const fr = new FileReader();
+            return await new Promise<PhotoWithUrl>((resolve) => {
+              fr.onload = () => {
+                console.log('Loaded dataUrl for', photo.url);
+                resolve({ ...photo, dataUrl: fr.result as string });
+              };
+              fr.readAsDataURL(fileData);
+            });
+          } catch (e) {
+            console.log('Exception for', photo.url, e);
+            return { ...photo, dataUrl: null };
           }
-      
-          console.log('File path:', photo.url);
-          console.log('Signed result:', signed);
-      
-          return {
-            ...photo,
-            signedUrl: signed?.signedUrl ?? null,
-          };
         })
       );
-      setPhotos(signedPhotos);
+
+      setPhotos(photosWithDataUrl);
       setPhotosLoading(false);
     };
 
@@ -147,14 +146,12 @@ export default function MainScreen() {
   return (
     <View style={{ flex: 1, alignItems: 'center', backgroundColor: 'white', paddingTop: 80 }}>
       <View style={{ width: '86%', flexDirection: 'row', justifyContent: 'space-between' }}>
-        <View style={{ flex: 1 }}>
-          <DropDown
-            items={['Project 1', 'Project 2', 'Project 3', 'Project 4']}
-            selectedItem={selectedProject}
-            setSelectedItem={setSelectedProject}
-            placeholder="Select a project"
-          />
-        </View>
+        <DropDown
+          items={['Project 1', 'Project 2', 'Project 3', 'Project 4']}
+          selectedItem={selectedProject}
+          setSelectedItem={setSelectedProject}
+          placeholder="Select a project"
+        />
         <TouchableOpacity
           style={{
             width: 40,
@@ -173,15 +170,7 @@ export default function MainScreen() {
         </TouchableOpacity>
       </View>
 
-      <View
-        style={{
-          flexDirection: 'row',
-          flexWrap: 'wrap',
-          justifyContent: 'center',
-          marginTop: 180,
-          width: '86%',
-        }}
-      >
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 180, width: '86%' }}>
         {selectedProject &&
           [
             { icon: 'document-text', onPress: undefined, disabled: false },
@@ -218,20 +207,8 @@ export default function MainScreen() {
       </View>
 
       {showSearchBar && selectedProject && (
-        <View>
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              borderWidth: 1,
-              borderColor: '#009fe3',
-              borderRadius: 40,
-              paddingHorizontal: 16,
-              backgroundColor: '#f5f5f5',
-              width: '82%',
-              marginBottom: 20,
-            }}
-          >
+        <View style={{ marginTop: 20 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#009fe3', borderRadius: 40, paddingHorizontal: 16, backgroundColor: '#f5f5f5', width: '82%', marginBottom: 20 }}>
             <TextInput
               style={{ flex: 1, height: 42, paddingLeft: 8 }}
               placeholder="Search in a project..."
@@ -274,21 +251,15 @@ export default function MainScreen() {
           <Text>No photos available.</Text>
         ) : (
           <ScrollView contentContainerStyle={{ padding: 16 }}>
- {photos.map((photo) =>
-  photo.signedUrl ? (
-    <Image
-      key={photo.id}
-      source={{ uri: photo.signedUrl }}
-      style={{
-        width: 100,
-        height: 100,
-        marginBottom: 10,
-        borderRadius: 8,
-        alignSelf: 'center',
-      }}
-    />
-  ) : null
-)}
+            {photos.map((photo) =>
+              photo.dataUrl ? (
+                <Image
+                  key={photo.id}
+                  source={{ uri: photo.dataUrl }}
+                  style={{ width: 100, height: 100, marginBottom: 10, borderRadius: 8, alignSelf: 'center' }}
+                />
+              ) : null
+            )}
           </ScrollView>
         )}
       </DynamicDialog>
