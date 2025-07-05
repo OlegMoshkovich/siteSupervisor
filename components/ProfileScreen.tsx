@@ -20,7 +20,6 @@ interface ProfileScreenProps {
 }
 
 export default function ProfileScreen({ navigation, session }: ProfileScreenProps) {
-  console.log('ProfileScreen rendered', { session });
   const { width } = Dimensions.get('window');
   return (
     <View style={{ backgroundColor: 'white', height: '100%' }}>
