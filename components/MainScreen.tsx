@@ -169,22 +169,6 @@ export default function MainScreen(props: any) {
           setSelectedItem={setSelectedProject}
           placeholder="Select a project"
         />
-        {/* <TouchableOpacity
-          style={{
-            width: 40,
-            height: 40,
-            borderRadius: 20,
-            backgroundColor: '#f9f9f9',
-            alignItems: 'center',
-            justifyContent: 'center',
-            marginLeft: 12,
-            borderWidth: .5,
-            borderColor: colors.primary,
-          }}
-          onPress={() => navigation.navigate('Profile')}
-        >
-          <Ionicons name="person" size={24} color="grey" />
-        </TouchableOpacity> */}
       </View>
 
       <DynamicDialog
@@ -197,6 +181,9 @@ export default function MainScreen(props: any) {
         }}
         headerProps={{
           title: 'Upload Photo',
+          style: { paddingHorizontal: 16 },
+          rightActionFontSize: 15,
+          titleStyle: { color: colors.primary },
           rightActionElement: 'Close',
           onRightAction: () => {
             setDialogVisible(false);
@@ -214,15 +201,33 @@ export default function MainScreen(props: any) {
               resizeMode="cover"
             />
             <TextInput
-              placeholder="Add a note (optional)"
+              placeholder="Add a title (optional)"
               value={pendingNote}
               onChangeText={setPendingNote}
               style={{
-                width: '90%',
+                width: 300,
                 minHeight: 40,
                 borderWidth: 1,
                 borderColor: '#ccc',
-                borderRadius: 8,
+                borderRadius: 10,
+                paddingHorizontal: 12,
+                marginBottom: 16,
+                fontSize: 16,
+                backgroundColor: '#fafafa',
+              }}
+              editable={!uploading}
+            />
+            <TextInput
+              placeholder="Add a note (optional)"
+              value={pendingNote}
+              onChangeText={setPendingNote}
+              multiline={true}
+              style={{
+                width: 300,
+                minHeight: 80,
+                borderWidth: 1,
+                borderColor: '#ccc',
+                borderRadius: 10,
                 paddingHorizontal: 12,
                 marginBottom: 16,
                 fontSize: 16,
@@ -235,14 +240,21 @@ export default function MainScreen(props: any) {
                 onPress={handleUpload}
                 style={{
                   backgroundColor: '#d42a02',
-                  borderRadius: 8,
+                  borderRadius: 100,
                   paddingVertical: 12,
                   paddingHorizontal: 32,
                   marginBottom: 8,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 3, height: 3 },
+                  shadowOpacity: 0.2,
+                  shadowRadius: 6,
+                  elevation: 8,
+                  justifyContent: 'center',
+                  alignItems: 'center',
                 }}
                 disabled={uploading}
               >
-                <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>Upload</Text>
+                <Text style={{ color: 'white',  fontSize: 16 }}>Upload</Text>
               </TouchableOpacity>
             ) : (
               <ActivityIndicator size="large" color={'#d42a02'} />
