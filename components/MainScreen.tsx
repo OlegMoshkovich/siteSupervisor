@@ -30,7 +30,7 @@ type PhotoWithUrl = {
   dataUrl: string | null;
 };
 
-export default function MainScreen() {
+export default function MainScreen(props: any) {
   const navigation = useNavigation<BottomTabNavigationProp<TabParamList>>();
   const [selectedProject, setSelectedProject] = useState('');
   const [uploading, setUploading] = useState(false);
