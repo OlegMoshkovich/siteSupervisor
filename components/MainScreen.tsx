@@ -8,6 +8,7 @@ import {
   Alert,
   ActivityIndicator,
   Image,
+  TextInput,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
@@ -40,6 +41,9 @@ export default function MainScreen(props: any) {
   const [dialogVisible, setDialogVisible] = useState(false);
   const [photos, setPhotos] = useState<PhotoWithUrl[]>([]);
   const [photosLoading, setPhotosLoading] = useState(false);
+  const [pendingImageUri, setPendingImageUri] = useState<string | null>(null);
+  const [pendingNote, setPendingNote] = useState('');
+  const [pendingUpload, setPendingUpload] = useState(false);
 
   const handlePickAndUpload = async () => {
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
@@ -56,48 +60,61 @@ export default function MainScreen(props: any) {
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const image = result.assets[0];
-      try {
-        setUploading(true);
-        const arraybuffer = await fetch(image.uri).then((res) => res.arrayBuffer());
-        const fileExt = image.uri.split('.').pop()?.toLowerCase() ?? 'jpeg';
-        const filename = `${Date.now()}.${fileExt}`;
+      setPendingImageUri(image.uri);
+      setDialogVisible(true);
+      setPendingNote('');
+      setPendingUpload(false);
+    }
+  };
 
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('photos')
-          .upload(filename, arraybuffer, {
-            contentType: image.mimeType ?? 'image/jpeg',
-          });
+  const handleUpload = async () => {
+    if (!pendingImageUri) return;
+    setUploading(true);
+    setPendingUpload(true);
+    try {
+      const arraybuffer = await fetch(pendingImageUri).then((res) => res.arrayBuffer());
+      const fileExt = pendingImageUri.split('.').pop()?.toLowerCase() ?? 'jpeg';
+      const filename = `${Date.now()}.${fileExt}`;
 
-        if (uploadError) {
-          Alert.alert('Upload failed', uploadError.message);
-          return;
-        }
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('photos')
+        .upload(filename, arraybuffer, {
+          contentType: 'image/jpeg',
+        });
 
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          Alert.alert('Upload failed', 'User not authenticated');
-          return;
-        }
-
-        const { error: insertError } = await supabase.from('photos').insert([
-          {
-            project_id: null,
-            user_id: user.id,
-            url: uploadData?.path,
-            metadata: { note: 'Test upload from library' },
-          },
-        ]);
-
-        if (insertError) {
-          Alert.alert('DB insert failed', insertError.message);
-        } else {
-          Alert.alert('Photo uploaded and record created!');
-        }
-      } catch (err: any) {
-        Alert.alert('Upload failed', err.message || 'Unknown error');
-      } finally {
-        setUploading(false);
+      if (uploadError) {
+        Alert.alert('Upload failed', uploadError.message);
+        return;
       }
+
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        Alert.alert('Upload failed', 'User not authenticated');
+        return;
+      }
+
+      const { error: insertError } = await supabase.from('photos').insert([
+        {
+          project_id: null,
+          user_id: user.id,
+          url: uploadData?.path,
+          metadata: { note: pendingNote },
+        },
+      ]);
+
+      if (insertError) {
+        Alert.alert('DB insert failed', insertError.message);
+      } else {
+        Alert.alert('Photo uploaded and record created!');
+      }
+    } catch (err: any) {
+      Alert.alert('Upload failed', err.message || 'Unknown error');
+    } finally {
+      setUploading(false);
+      setPendingImageUri(null);
+      setDialogVisible(false);
+      setPendingNote('');
+      setPendingUpload(false);
     }
   };
 
@@ -170,6 +187,74 @@ export default function MainScreen(props: any) {
         </TouchableOpacity> */}
       </View>
 
+      <DynamicDialog
+        visible={dialogVisible}
+        onClose={() => {
+          setDialogVisible(false);
+          setPendingImageUri(null);
+          setPendingNote('');
+          setPendingUpload(false);
+        }}
+        headerProps={{
+          title: 'Upload Photo',
+          rightActionElement: 'Close',
+          onRightAction: () => {
+            setDialogVisible(false);
+            setPendingImageUri(null);
+            setPendingNote('');
+            setPendingUpload(false);
+          },
+        }}
+      >
+        {pendingImageUri ? (
+          <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1, width: '100%' }}>
+            <Image
+              source={{ uri: pendingImageUri }}
+              style={{ width: 300, height: 300, borderRadius: 12, marginBottom: 16 }}
+              resizeMode="cover"
+            />
+            <TextInput
+              placeholder="Add a note (optional)"
+              value={pendingNote}
+              onChangeText={setPendingNote}
+              style={{
+                width: '90%',
+                minHeight: 40,
+                borderWidth: 1,
+                borderColor: '#ccc',
+                borderRadius: 8,
+                paddingHorizontal: 12,
+                marginBottom: 16,
+                fontSize: 16,
+                backgroundColor: '#fafafa',
+              }}
+              editable={!uploading}
+            />
+            {!uploading ? (
+              <TouchableOpacity
+                onPress={handleUpload}
+                style={{
+                  backgroundColor: '#d42a02',
+                  borderRadius: 8,
+                  paddingVertical: 12,
+                  paddingHorizontal: 32,
+                  marginBottom: 8,
+                }}
+                disabled={uploading}
+              >
+                <Text style={{ color: 'white', fontWeight: 'bold', fontSize: 18 }}>Upload</Text>
+              </TouchableOpacity>
+            ) : (
+              <ActivityIndicator size="large" color={'#d42a02'} />
+            )}
+          </View>
+        ) : (
+          <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1 }}>
+            <Text>No photo selected.</Text>
+          </View>
+        )}
+      </DynamicDialog>
+
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 200, width: '86%' }}>
         {selectedProject &&
           [
@@ -205,18 +290,12 @@ export default function MainScreen(props: any) {
                   width: 90,
                   height: 90,
                   borderRadius: 45,
-                //   borderWidth: .5,
                   borderColor: colors.primary,
                   alignItems: 'center',
                   justifyContent: 'center',
-                //   backgroundColor: 'white',
                 }}
               >
-                {item.icon === 'camera' && item.isUploading && uploading ? (
-            <ActivityIndicator size="large" color={'#d42a02'} />
-                ) : (
-                  <Ionicons name={item.icon as any} size={32} color="white" />
-                )}
+                <Ionicons name={item.icon as any} size={32} color="white" />
               </View>
             </TouchableOpacity>
           ))}
