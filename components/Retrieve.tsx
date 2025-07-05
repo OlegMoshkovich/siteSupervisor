@@ -18,6 +18,8 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import DropDown from './DropDown';
 import DynamicDialog from './DynamicDialog';
 import colors from './colors';
+import CheckBox from './CheckBox';
+import Loader from './Loader';
 
 // Define the tab param list
 type TabParamList = {
@@ -29,6 +31,8 @@ type PhotoWithUrl = {
   id: string;
   url: string;
   dataUrl: string | null;
+  title?: string;
+  note?: string;
 };
 
 export default function RetrieveScreen(props: any) {
@@ -41,6 +45,7 @@ export default function RetrieveScreen(props: any) {
   const [dialogVisible, setDialogVisible] = useState(false);
   const [photos, setPhotos] = useState<PhotoWithUrl[]>([]);
   const [photosLoading, setPhotosLoading] = useState(false);
+  const [checkedPhotos, setCheckedPhotos] = useState<{ [id: string]: boolean }>({});
 
   const handlePickAndUpload = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -176,7 +181,7 @@ export default function RetrieveScreen(props: any) {
           title: 'June 2, 2025',
           rightActionFontSize: 15,
           style: { paddingHorizontal: 16 },
-          titleStyle: { color: colors.primary },
+          titleStyle: { color: 'black' },
           rightActionElement: 'Close',
           onRightAction: () => setDialogVisible(false),
           onHeaderPress: () => setDialogVisible(false),
@@ -185,21 +190,69 @@ export default function RetrieveScreen(props: any) {
         onClose={() => setDialogVisible(false)}
       >
         {photosLoading ? (
-           <ActivityIndicator size="large" color={'#d42a02'} />
+          
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          {/* <ActivityIndicator size="large" color={'#d42a02'} /> */}
+          <Loader />
+          </View>
         ) : photos.length === 0 ? (
-          <Text>No photos available.</Text>
+          <Text style={{ alignSelf: 'center', marginTop: 0 }}>No photos available.</Text>
         ) : (
-          <ScrollView contentContainerStyle={{ padding: 16 }}>
-            {photos.map((photo) =>
-              photo.dataUrl ? (
-                <Image
-                  key={photo.id}
-                  source={{ uri: photo.dataUrl }}
-                  style={{ width: 300, height: 300, marginBottom: 10, borderRadius: 8, alignSelf: 'center' }}
-                />
-              ) : null
+          <>
+            <ScrollView contentContainerStyle={{ padding: 0 }}>
+              {photos.map((photo) =>
+                photo.dataUrl ? (
+                  <View key={photo.id} style={{ marginBottom: 24, alignItems: 'center' }}>
+                    <Image
+                      source={{ uri: photo.dataUrl }}
+                      style={{ width: 300, height: 300, marginBottom: 10, borderRadius: 8, alignSelf: 'center' }}
+                    />
+                    {photo.title ? (
+                      <View style={{ flexDirection: 'row', alignItems: 'center', width: 300, alignSelf: 'center', marginBottom: 4 }}>
+                        <Text style={{ flex: 1, fontWeight: 'bold', fontSize: 18, color: '#222' }}>
+                          {photo.title}
+                        </Text>
+                        <CheckBox
+                          checked={!!checkedPhotos[photo.id]}
+                          onChange={(checked) => setCheckedPhotos((prev) => ({ ...prev, [photo.id]: checked }))}
+                          size={32}
+                        />
+                      </View>
+                    ) : null}
+                    {photo.note ? (
+                      <Text style={{ width: 300,fontSize: 16, color: '#444', alignSelf: 'center', marginBottom: 4 }}>
+                        {photo.note}
+                      </Text>
+                    ) : null}
+                  </View>
+                ) : null
+              )}
+            </ScrollView>
+            {(
+              <View style={{ alignItems: 'center', marginVertical: 16 }}>
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: '#d42a02',
+                    borderRadius: 100,
+                    paddingVertical: 10,
+                    paddingHorizontal: 32,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 3, height: 3 },
+                    shadowOpacity: 0.2,
+                    shadowRadius: 6,
+                    elevation: 8,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    opacity: Object.values(checkedPhotos).some(Boolean) ? 1 : 0.5,
+                  }}
+                  onPress={() => {/* handle action for selected photos here */}}
+                  disabled={!Object.values(checkedPhotos).some(Boolean)}
+                >
+                  <Text style={{ color: 'white', fontSize: 16 }}>Generate Report</Text>
+                </TouchableOpacity>
+              </View>
             )}
-          </ScrollView>
+          </>
         )}
       </DynamicDialog>
     </View>

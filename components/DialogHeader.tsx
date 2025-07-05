@@ -142,7 +142,6 @@ const styles = StyleSheet.create({
     fontWeight: "400",
     textAlign: "left",
     flexShrink: 1,
-    fontFamily: "FoundersGrotesk-Regular",
   },
   titleButton: {
     marginLeft: 8,
@@ -160,8 +159,8 @@ const styles = StyleSheet.create({
   bottomBorder: {
     width: "90%",
     alignSelf: "center",
-    borderBottomWidth: .5,
-    borderBottomColor: "black",
+    // borderBottomWidth: .5,
+    // borderBottomColor: "black",
   },
 });
 

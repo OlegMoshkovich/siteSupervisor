@@ -119,7 +119,7 @@ const styles = StyleSheet.create({
   content: {
     flex: 1,
     alignSelf: "center",
-    paddingVertical: 20,
+    paddingVertical: 10,
     width: "100%",
     backgroundColor: 'white',
   },

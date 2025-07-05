@@ -52,8 +52,9 @@ export default function Auth() {
       <View style={{ position: 'absolute', top: -30, left: 0, width: '100%', alignItems: 'center', zIndex: 1 }} pointerEvents="none">
         <Image
           source={require('../assets/cloneit.png')}
-          style={{ width: width * 0.8, height: 50, resizeMode: 'contain' }}
+          style={{ width: width , height: 60, resizeMode: 'contain' }}
         />
+               
       </View>
       <View style={[styles.verticallySpaced, styles.mt20]}>
         <Input
@@ -80,7 +81,7 @@ export default function Auth() {
       </View>
       <View style={[styles.verticallySpaced, {width: '60%', alignSelf: 'center', marginTop: 20}]}>
         <TouchableOpacity
-            style={[styles.customButton,{backgroundColor: '#009FE3', 
+            style={[styles.customButton,{backgroundColor: '#d42a02', 
             shadowColor: '#000',
             shadowOffset: { width: 3, height: 3 },
             shadowOpacity: 0.2,
@@ -101,7 +102,7 @@ export default function Auth() {
           disabled={loading}
           onPress={signUpWithEmail}
         >
-          <Text style={[styles.buttonText, { color: colors.primary }]}>Sign up</Text>
+          <Text style={[styles.buttonText, { color: '#009FE3', fontSize: 18 }]}>Sign up</Text>
         </TouchableOpacity>
       </View>
       

@@ -9,6 +9,8 @@ import {
   ActivityIndicator,
   Image,
   TextInput,
+  Keyboard,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
@@ -42,6 +44,7 @@ export default function MainScreen(props: any) {
   const [photos, setPhotos] = useState<PhotoWithUrl[]>([]);
   const [photosLoading, setPhotosLoading] = useState(false);
   const [pendingImageUri, setPendingImageUri] = useState<string | null>(null);
+  const [pendingTitle, setPendingTitle] = useState('');
   const [pendingNote, setPendingNote] = useState('');
   const [pendingUpload, setPendingUpload] = useState(false);
 
@@ -62,6 +65,7 @@ export default function MainScreen(props: any) {
       const image = result.assets[0];
       setPendingImageUri(image.uri);
       setDialogVisible(true);
+      setPendingTitle('');
       setPendingNote('');
       setPendingUpload(false);
     }
@@ -98,7 +102,8 @@ export default function MainScreen(props: any) {
           project_id: null,
           user_id: user.id,
           url: uploadData?.path,
-          metadata: { note: pendingNote },
+          title: pendingTitle,
+          note: pendingNote,
         },
       ]);
 
@@ -113,6 +118,7 @@ export default function MainScreen(props: any) {
       setUploading(false);
       setPendingImageUri(null);
       setDialogVisible(false);
+      setPendingTitle('');
       setPendingNote('');
       setPendingUpload(false);
     }
@@ -176,11 +182,12 @@ export default function MainScreen(props: any) {
         onClose={() => {
           setDialogVisible(false);
           setPendingImageUri(null);
+          setPendingTitle('');
           setPendingNote('');
           setPendingUpload(false);
         }}
         headerProps={{
-          title: 'Upload Photo',
+          title: 'Image',
           style: { paddingHorizontal: 16 },
           rightActionFontSize: 15,
           titleStyle: { color: colors.primary },
@@ -188,54 +195,55 @@ export default function MainScreen(props: any) {
           onRightAction: () => {
             setDialogVisible(false);
             setPendingImageUri(null);
+            setPendingTitle('');
             setPendingNote('');
             setPendingUpload(false);
           },
         }}
       >
         {pendingImageUri ? (
-          <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1, width: '100%' }}>
-            <Image
-              source={{ uri: pendingImageUri }}
-              style={{ width: 300, height: 300, borderRadius: 12, marginBottom: 16 }}
-              resizeMode="cover"
-            />
-            <TextInput
-              placeholder="Add a title (optional)"
-              value={pendingNote}
-              onChangeText={setPendingNote}
-              style={{
-                width: 300,
-                minHeight: 40,
-                borderWidth: 1,
-                borderColor: '#ccc',
-                borderRadius: 10,
-                paddingHorizontal: 12,
-                marginBottom: 16,
-                fontSize: 16,
-                backgroundColor: '#fafafa',
-              }}
-              editable={!uploading}
-            />
-            <TextInput
-              placeholder="Add a note (optional)"
-              value={pendingNote}
-              onChangeText={setPendingNote}
-              multiline={true}
-              style={{
-                width: 300,
-                minHeight: 80,
-                borderWidth: 1,
-                borderColor: '#ccc',
-                borderRadius: 10,
-                paddingHorizontal: 12,
-                marginBottom: 16,
-                fontSize: 16,
-                backgroundColor: '#fafafa',
-              }}
-              editable={!uploading}
-            />
-            {!uploading ? (
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1, width: '100%' }}>
+              <TextInput
+                placeholder="Add a title (optional)"
+                value={pendingTitle}
+                onChangeText={setPendingTitle}
+                style={{
+                  width: 300,
+                  minHeight: 40,
+                  borderWidth: 1,
+                  borderColor: '#ccc',
+                  borderRadius: 10,
+                  paddingHorizontal: 12,
+                  marginBottom: 16,
+                  fontSize: 16,
+                  backgroundColor: '#fafafa',
+                }}
+                editable={!uploading}
+              />
+              <TextInput
+                placeholder="Add a note (optional)"
+                value={pendingNote}
+                onChangeText={setPendingNote}
+                multiline={true}
+                style={{
+                  width: 300,
+                  minHeight: 80,
+                  borderWidth: 1,
+                  borderColor: '#ccc',
+                  borderRadius: 10,
+                  paddingHorizontal: 12,
+                  marginBottom: 16,
+                  fontSize: 16,
+                  backgroundColor: '#fafafa',
+                }}
+                editable={!uploading}
+              />
+              <Image
+                source={{ uri: pendingImageUri }}
+                style={{ width: 300, height: 300, borderRadius: 12, marginBottom: 16 }}
+                resizeMode="cover"
+              />
               <TouchableOpacity
                 onPress={handleUpload}
                 style={{
@@ -244,6 +252,7 @@ export default function MainScreen(props: any) {
                   paddingVertical: 12,
                   paddingHorizontal: 32,
                   marginBottom: 8,
+                  marginTop: 20,
                   shadowColor: '#000',
                   shadowOffset: { width: 3, height: 3 },
                   shadowOpacity: 0.2,
@@ -254,12 +263,14 @@ export default function MainScreen(props: any) {
                 }}
                 disabled={uploading}
               >
-                <Text style={{ color: 'white',  fontSize: 16 }}>Upload</Text>
+                {uploading ? (
+                  <ActivityIndicator size="small" color={'#fff'} />
+                ) : (
+                  <Text style={{ color: 'white', fontSize: 16 }}>Upload</Text>
+                )}
               </TouchableOpacity>
-            ) : (
-              <ActivityIndicator size="large" color={'#d42a02'} />
-            )}
-          </View>
+            </View>
+          </TouchableWithoutFeedback>
         ) : (
           <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1 }}>
             <Text>No photo selected.</Text>
@@ -272,7 +283,7 @@ export default function MainScreen(props: any) {
           [
             { icon: 'document-text', onPress: undefined, disabled: false },
             { icon: 'camera', onPress: handlePickAndUpload, disabled: uploading, isUploading: true },
-            { icon: 'mic', onPress: undefined, disabled: false },
+            // { icon: 'mic', onPress: undefined, disabled: false },
           ].map((item, idx) => (
             <TouchableOpacity
               key={idx}

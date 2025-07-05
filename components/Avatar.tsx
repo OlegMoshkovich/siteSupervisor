@@ -122,7 +122,7 @@ export default function Avatar({ url, size = 150, onUpload }: Props) {
           />
         ) : (
           <View style={[avatarSize, styles.avatar, styles.noImage]} >
-                <ActivityIndicator size="large" color={'#d42a02'} />
+                <ActivityIndicator size="small" color={'#d42a02'} />
           </View>
         )}
       </TouchableOpacity>
