@@ -65,8 +65,8 @@ const DynamicDialog: React.FC<DynamicDialogProps> = ({
             style={{
               flex: 1,
               backgroundColor: 'white',
-              borderWidth: 1,
-              borderColor: '#009fe3',
+              borderWidth: .5,
+              borderColor: 'colors.primary',
               borderTopLeftRadius: 10,
               borderTopRightRadius: 10,
               borderBottomLeftRadius: 0,

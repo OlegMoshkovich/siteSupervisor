@@ -4,6 +4,7 @@ import { StyleSheet, View, Alert, TouchableOpacity, Text, ActivityIndicator } fr
 import { Input } from '@rneui/themed'
 import { Session } from '@supabase/supabase-js'
 import Avatar from './Avatar'
+import colors from './colors'
 
 export default function Account({ session }: { session: Session }) {
   const [loading, setLoading] = useState(true)
@@ -99,33 +100,33 @@ export default function Account({ session }: { session: Session }) {
       </View>
       <View style={[styles.verticallySpaced, styles.mt20]}>
         <Input 
-         labelStyle={{ color: '#009fe3', fontSize: 16, fontWeight: 400, }}
+         labelStyle={{ color: 'colors.primary', fontSize: 16, fontWeight: 400, }}
         label="Email" value={session?.user?.email} disabled />
       </View>
       <View style={styles.verticallySpaced}>
         <Input 
-        labelStyle={{ color: '#009fe3', fontSize: 16, fontWeight: 400, }}
+        labelStyle={{ color: 'colors.primary', fontSize: 16, fontWeight: 400, }}
         label="Name" value={username || ''} onChangeText={(text) => setUsername(text)} />
       </View>
       <View style={styles.verticallySpaced}>
         <Input 
-             labelStyle={{ color: '#009fe3', fontSize: 16, fontWeight: 400, }}
+             labelStyle={{ color: 'colors.primary', fontSize: 16, fontWeight: 400, }}
         label="Company" value={website || ''} onChangeText={(text) => setWebsite(text)} />
       </View>
 
-      <View style={[styles.verticallySpaced, styles.mt20]}>
+      {/* <View style={[styles.verticallySpaced, styles.mt20]}>
         <TouchableOpacity
-          style={[styles.customButton, loading && styles.disabledButton]}
+          style={[styles.customButton, loading && styles.disabledButton, { borderWidth: .5, borderColor: colors.primary }]}
           onPress={() => updateProfile({ username, website, avatar_url: avatarUrl })}
           disabled={loading}
         >
           <Text style={styles.buttonText}>{loading ? 'Loading ...' : 'Update'}</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
 
-      <View style={styles.verticallySpaced}>
+      <View style={[styles.verticallySpaced, styles.mt20]}>
         <TouchableOpacity
-          style={styles.customButton}
+          style={[styles.customButton, { borderWidth: .5, borderColor: colors.primary }]}
           onPress={handleSignOut}
           disabled={signingOut}
         >
@@ -158,16 +159,15 @@ const styles = StyleSheet.create({
     backgroundColor: 'white'
   },
   customButton: {
-    backgroundColor: '#009fe3',
-    borderRadius: 40,
+    borderRadius: 20,
     paddingVertical: 12,
     paddingHorizontal: 32,
     alignItems: 'center',
     justifyContent: 'center',
   },
   buttonText: {
-    color: '#fff',
-    fontWeight: 'bold',
+    color: 'black',
+    // fontWeight: 'bold',
     fontSize: 16,
   },
   disabledButton: {

@@ -153,7 +153,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   rightActionText: {
-    color: "#009fe3",
+    color: "colors.primary",
     fontSize: 18,
     fontWeight: "400",
   },

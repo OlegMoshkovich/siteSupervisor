@@ -17,6 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import DropDown from './DropDown';
 import DynamicDialog from './DynamicDialog';
+import colors from './colors';
 
 // Define the tab param list
 type TabParamList = {
@@ -32,7 +33,7 @@ type PhotoWithUrl = {
 
 export default function MainScreen(props: any) {
   const navigation = useNavigation<BottomTabNavigationProp<TabParamList>>();
-  const [selectedProject, setSelectedProject] = useState('');
+  const [selectedProject, setSelectedProject] = useState('Project 1');
   const [uploading, setUploading] = useState(false);
   const [showSearchBar, setShowSearchBar] = useState(true);
   const { width } = Dimensions.get('window');
@@ -42,13 +43,13 @@ export default function MainScreen(props: any) {
   const [photosLoading, setPhotosLoading] = useState(false);
 
   const handlePickAndUpload = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
-      Alert.alert('Permission required to access photo library!');
+      Alert.alert('Permission required to access camera!');
       return;
     }
 
-    const result = await ImagePicker.launchImageLibraryAsync({
+    const result = await ImagePicker.launchCameraAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
@@ -161,8 +162,8 @@ export default function MainScreen(props: any) {
             alignItems: 'center',
             justifyContent: 'center',
             marginLeft: 12,
-            borderWidth: 1,
-            borderColor: '#009fe3',
+            borderWidth: .5,
+            borderColor: colors.primary,
           }}
           onPress={() => navigation.navigate('Profile')}
         >
@@ -186,18 +187,18 @@ export default function MainScreen(props: any) {
             >
               <View
                 style={{
-                  width: 70,
-                  height: 70,
-                  borderRadius: 35,
-                  borderWidth: 1,
-                  borderColor: '#009fe3',
+                  width: 90,
+                  height: 90,
+                  borderRadius: 45,
+                  borderWidth: 2,
+                  borderColor: colors.primary,
                   alignItems: 'center',
                   justifyContent: 'center',
                   backgroundColor: 'white',
                 }}
               >
                 {item.icon === 'camera' && item.isUploading && uploading ? (
-                  <ActivityIndicator size="large" color="#009fe3" />
+                  <ActivityIndicator size="large" color={colors.primary} />
                 ) : (
                   <Ionicons name={item.icon as any} size={32} color="grey" />
                 )}
@@ -208,7 +209,7 @@ export default function MainScreen(props: any) {
 {/* 
       {showSearchBar && selectedProject && (
         <View style={{ marginTop: 20 }}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#009fe3', borderRadius: 40, paddingHorizontal: 16, backgroundColor: '#f5f5f5', width: '82%', marginBottom: 20 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', borderWidth: .5, borderColor: 'colors.primary', borderRadius: 40, paddingHorizontal: 16, backgroundColor: '#f5f5f5', width: '82%', marginBottom: 20 }}>
             <TextInput
               style={{ flex: 1, height: 42, paddingLeft: 8 }}
               placeholder="Search in a project..."
@@ -236,7 +237,7 @@ export default function MainScreen(props: any) {
         headerProps={{
           title: 'All uploaded photos',
           style: { paddingHorizontal: 16 },
-          titleStyle: { color: '#009fe3' },
+          titleStyle: { color: colors.primary },
           headerAsButton: true,
           rightActionElement: 'Close',
           onRightAction: () => setDialogVisible(false),
@@ -246,7 +247,7 @@ export default function MainScreen(props: any) {
         onClose={() => setDialogVisible(false)}
       >
         {photosLoading ? (
-          <ActivityIndicator size="large" color="#009fe3" />
+          <ActivityIndicator size="large" color={colors.primary} />
         ) : photos.length === 0 ? (
           <Text>No photos available.</Text>
         ) : (

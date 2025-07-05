@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { Alert, StyleSheet, View, AppState, TouchableOpacity, Text, Image, Dimensions } from 'react-native'
 import { supabase } from '../lib/supabase'
 import { Input } from '@rneui/themed'
+import colors from './colors'
 
 // Tells Supabase Auth to continuously refresh the session automatically if
 // the app is in the foreground. When this is added, you will continue to receive
@@ -55,7 +56,7 @@ export default function Auth() {
           value={email}
           placeholder="Email"
           autoCapitalize={'none'}
-          labelStyle={{ color: '#009fe3', fontSize: 16, fontWeight: 400, display: 'none' }}
+          labelStyle={{ color: colors.primary, fontSize: 16, fontWeight: 400, display: 'none' }}
         />
       </View>
       <View style={styles.verticallySpaced}>
@@ -66,8 +67,8 @@ export default function Auth() {
           secureTextEntry={true}
           placeholder="Password"
           autoCapitalize={'none'}
-          labelStyle={{ color: '#009fe3', fontSize: 16, fontWeight: 400, display: 'none' }}
-          style={{  borderColor: '#009fe3', borderRadius: 30, paddingVertical: 12, backgroundColor: 'white' }}
+          labelStyle={{ color: colors.primary, fontSize: 16, fontWeight: 400, display: 'none' }}
+          style={{  borderColor: colors.primary, borderRadius: 30, paddingVertical: 12, backgroundColor: 'white' }}
         />
       </View>
       <View style={[styles.verticallySpaced, styles.mt20]}>
@@ -81,11 +82,11 @@ export default function Auth() {
       </View>
       <View style={styles.verticallySpaced}>
         <TouchableOpacity
-          style={[styles.customButton, { borderWidth: 1, borderColor: '#009fe3', backgroundColor: 'white' }]}
+          style={[styles.customButton, { borderWidth: .5, borderColor: colors.primary, backgroundColor: 'black ' }]}
           disabled={loading}
           onPress={signUpWithEmail}
         >
-          <Text style={[styles.buttonText, { color: '#009fe3' }]}>Sign up</Text>
+          <Text style={[styles.buttonText, { color: colors.primary }]}>Sign up</Text>
         </TouchableOpacity>
       </View>
       <View style={{ position: 'absolute', bottom: -300, left: 0, width: '100%', alignItems: 'center', zIndex: 1 }} pointerEvents="none">
@@ -112,7 +113,7 @@ const styles = StyleSheet.create({
     marginTop: 50,
   },
   customButton: {
-    backgroundColor: '#009fe3',
+    backgroundColor: colors.primary,
     borderRadius: 30,
     paddingVertical: 12,
     paddingHorizontal: 32,

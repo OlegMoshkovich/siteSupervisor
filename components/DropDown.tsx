@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import { View, TouchableOpacity, Text, Pressable, FlatList, Dimensions } from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import colors from './colors';
 
 interface DropDownProps {
   items: string[];
@@ -13,21 +15,29 @@ const DropDown: React.FC<DropDownProps> = ({ items, selectedItem, setSelectedIte
   const { width, height } = Dimensions.get('window');
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, width: 200 }}>
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={() => setShowDropdown(true)}
       >
         <View style={{
-          borderWidth: 1,   
-          borderColor: '#009fe3',
-          borderRadius: 20,
-          backgroundColor: '#f9f9f9',
+          borderWidth: .5,
+          borderColor: colors.primary,
+          borderRadius: 10,
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'space-between',
           paddingHorizontal: 12,
         }}>
           <Text style={{ height: 40, lineHeight: 40, color: selectedItem ? '#222' : '#888' }}>
             {selectedItem || placeholder}
           </Text>
+          <Ionicons
+            name={showDropdown ? 'chevron-up' : 'chevron-down'}
+            size={20}
+            color={colors.primary}
+            style={{ marginLeft: 8 }}
+          />
         </View>
       </TouchableOpacity>
       {showDropdown && (
@@ -49,14 +59,14 @@ const DropDown: React.FC<DropDownProps> = ({ items, selectedItem, setSelectedIte
             left: 0,
             width: '100%',
             backgroundColor: 'white',
-            borderWidth: 1,
-            borderColor: '#009fe3',
-            borderRadius: 20,
+            borderWidth: .5,
+            borderColor: colors.primary,
+            borderRadius: 10,
             zIndex: 10,
-            shadowColor: '#000',
-            shadowOpacity: 0.1,
-            shadowRadius: 8,
-            elevation: 4,
+            // shadowColor: '#000',
+            // shadowOpacity: 0.1,
+            // shadowRadius: 8,
+            // elevation: 4,
           }}>
             <FlatList
               data={items}

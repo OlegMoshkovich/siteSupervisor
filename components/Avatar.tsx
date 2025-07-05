@@ -90,24 +90,22 @@ export default function Avatar({ url, size = 150, onUpload }: Props) {
 
   return (
     <View style={{ alignItems: 'center' }}>
-      {avatarUrl ? (
-        <Image
-          source={{ uri: avatarUrl }}
-          accessibilityLabel="Avatar"
-          style={[avatarSize, styles.avatar, styles.image]}
-        />
-      ) : (
-        <View style={[avatarSize, styles.avatar, styles.noImage]} />
-      )}
-      {/* <View>
-        <TouchableOpacity
-          style={[styles.uploadButton, uploading && styles.disabledButton]}
-          onPress={uploadAvatar}
-          disabled={uploading}
-        >
-          <Text style={styles.uploadButtonText}>{uploading ? 'Uploading ...' : 'Upload'}</Text>
-        </TouchableOpacity>
-      </View> */}
+      <TouchableOpacity
+        onPress={uploadAvatar}
+        disabled={uploading}
+        activeOpacity={0.7}
+        style={{ alignItems: 'center', justifyContent: 'center' }}
+      >
+        {avatarUrl ? (
+          <Image
+            source={{ uri: avatarUrl }}
+            accessibilityLabel="Avatar"
+            style={[avatarSize, styles.avatar, styles.image]}
+          />
+        ) : (
+          <View style={[avatarSize, styles.avatar, styles.noImage]} />
+        )}
+      </TouchableOpacity>
     </View>
   )
 }
@@ -124,7 +122,7 @@ const styles = StyleSheet.create({
   },
   noImage: {
     backgroundColor: '#333',
-    borderWidth: 1,
+    borderWidth: .5,
     borderStyle: 'solid',
     borderColor: 'rgb(200, 200, 200)',
     borderRadius: 5,

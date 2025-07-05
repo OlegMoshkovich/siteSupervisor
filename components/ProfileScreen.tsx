@@ -6,6 +6,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { StackNavigationProp } from '@react-navigation/stack';
 import Account from './Account';
 import { Session } from '@supabase/supabase-js';
+import colors from './colors';
 
 // Define the stack param list
 type RootStackParamList = {
@@ -23,24 +24,7 @@ export default function ProfileScreen({ navigation, session }: ProfileScreenProp
   const { width } = Dimensions.get('window');
   return (
     <View style={{ backgroundColor: 'white', height: '100%' }}>
-      <TouchableOpacity
-        style={{
-          width: 40,
-          height: 40,
-          borderRadius: 20,
-          backgroundColor: '#f9f9f9',
-          alignItems: 'center',
-          justifyContent: 'center',
-          marginLeft: 20,
-          marginTop: 80,
-          borderWidth: 1,
-          borderColor: '#009fe3',
-        }}
-        activeOpacity={0.7}
-        onPress={() => navigation.navigate('Tabs')}
-      >
-        <Ionicons name="arrow-back" size={24} color="grey" />
-      </TouchableOpacity>
+      <View style={{ marginTop: 80 }}></View>
       <Account session={session} />
     </View>
   );

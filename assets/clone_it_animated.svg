@@ -3,7 +3,7 @@
   <style>
     :root {
       --logo-color: #1d1d1b;
-      --logo-accent-color: #009fe3;
+      --logo-accent-color: colors.primary;
     }
   </style>
 

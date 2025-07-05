@@ -17,6 +17,7 @@ import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import DropDown from './DropDown';
 import DynamicDialog from './DynamicDialog';
+import colors from './colors';
 
 // Define the tab param list
 type TabParamList = {
@@ -32,7 +33,7 @@ type PhotoWithUrl = {
 
 export default function RetrieveScreen(props: any) {
   const navigation = useNavigation<BottomTabNavigationProp<TabParamList>>();
-  const [selectedProject, setSelectedProject] = useState('');
+  const [selectedProject, setSelectedProject] = useState ('Project 1');
   const [uploading, setUploading] = useState(false);
   const [showSearchBar, setShowSearchBar] = useState(true);
   const { width } = Dimensions.get('window');
@@ -161,8 +162,8 @@ export default function RetrieveScreen(props: any) {
             alignItems: 'center',
             justifyContent: 'center',
             marginLeft: 12,
-            borderWidth: 1,
-            borderColor: '#009fe3',
+            borderWidth: .5,
+            borderColor: colors.primary,
           }}
           onPress={() => navigation.navigate('Profile')}
         >
@@ -189,15 +190,15 @@ export default function RetrieveScreen(props: any) {
                   width: 70,
                   height: 70,
                   borderRadius: 35,
-                  borderWidth: 1,
-                  borderColor: '#009fe3',
+                  borderWidth: .5,
+                  borderColor: 'colors.primary',
                   alignItems: 'center',
                   justifyContent: 'center',
                   backgroundColor: 'white',
                 }}
               >
                 {item.icon === 'camera' && item.isUploading && uploading ? (
-                  <ActivityIndicator size="large" color="#009fe3" />
+                  <ActivityIndicator size="large" color="colors.primary" />
                 ) : (
                   <Ionicons name={item.icon as any} size={32} color="grey" />
                 )}
@@ -208,7 +209,7 @@ export default function RetrieveScreen(props: any) {
 
       {selectedProject && (
         <View style={{ marginTop: 180}}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: '#009fe3', borderRadius: 40, paddingHorizontal: 16, backgroundColor: '#f5f5f5', width: '82%', marginBottom: 20 }}>
+          {/* <View style={{ flexDirection: 'row', alignItems: 'center', borderWidth: .5, borderColor: colors.primary, borderRadius: 40, paddingHorizontal: 16, backgroundColor: '#f5f5f5', width: '82%', marginBottom: 20 }}>
             <TextInput
               style={{ flex: 1, height: 42, paddingLeft: 8 }}
               placeholder="Search in a project..."
@@ -217,12 +218,12 @@ export default function RetrieveScreen(props: any) {
             <TouchableOpacity>
               <Ionicons name="arrow-forward" size={24} color="#333" />
             </TouchableOpacity>
-          </View>
+          </View> */}
 
           <DropDown
             items={['June 1', 'June 2', 'June 3', 'June 4']}
             selectedItem={selectedDate}
-            placeholder="Select a date to access photos and notes"
+            placeholder="Select a date"
             setSelectedItem={(date) => {
               setSelectedDate(date);
               setDialogVisible(true);
@@ -236,7 +237,7 @@ export default function RetrieveScreen(props: any) {
         headerProps={{
           title: 'All uploaded photos',
           style: { paddingHorizontal: 16 },
-          titleStyle: { color: '#009fe3' },
+          titleStyle: { color: colors.primary },
           headerAsButton: true,
           rightActionElement: 'Close',
           onRightAction: () => setDialogVisible(false),
@@ -246,7 +247,7 @@ export default function RetrieveScreen(props: any) {
         onClose={() => setDialogVisible(false)}
       >
         {photosLoading ? (
-          <ActivityIndicator size="large" color="#009fe3" />
+          <ActivityIndicator size="large" color={colors.primary} />
         ) : photos.length === 0 ? (
           <Text>No photos available.</Text>
         ) : (

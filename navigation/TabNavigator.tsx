@@ -13,17 +13,17 @@ export default function TabNavigator({ session }: { session: Session }) {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: '#009fe3',
+        tabBarActiveTintColor: 'colors.primary',
         tabBarIcon: ({ color, size }) => {
           let iconName = 'home';
-          if (route.name === 'Main') iconName = 'home';
+          if (route.name === 'Add') iconName = 'add-circle';
           if (route.name === 'Profile') iconName = 'person';
           if (route.name === 'Retrieve') iconName = 'search';
           return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}
     >
-      <Tab.Screen name="Main">
+      <Tab.Screen name="Add">
         {props => <MainScreen {...props} session={session} />}
       </Tab.Screen>
       <Tab.Screen name="Retrieve">
