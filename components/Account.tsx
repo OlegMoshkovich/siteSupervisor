@@ -126,9 +126,28 @@ export default function Account({ session }: { session: Session }) {
 
       <View style={[styles.verticallySpaced, styles.mt20]}>
         <TouchableOpacity
-          style={[styles.customButton, { borderWidth: .5, borderColor: colors.primary }]}
+          // style={[styles.customButton, { borderWidth: .5, borderColor: colors.primary }]}
           onPress={handleSignOut}
           disabled={signingOut}
+           style={{
+            margin: 6,     
+            borderRadius: 1000,
+            // backgroundColor: '#545251',
+            borderWidth: .5,
+            borderColor: colors.primary,
+            height: 40,
+            width: '60%',
+            alignSelf: 'center',
+            shadowColor: '#000',
+            shadowOffset: { width: 10, height: 10 },
+            shadowOpacity: 0.2,
+            shadowRadius: 8,
+            elevation: 8,
+            // Simulate inner shadow/highlight with border and overlay
+            // (React Native doesn't support inset shadow, so we approximate)
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
         >
           {signingOut ? (
             <ActivityIndicator color="#fff" />

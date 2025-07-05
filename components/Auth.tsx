@@ -62,7 +62,7 @@ export default function Auth() {
           value={email}
           placeholder="Email"
           autoCapitalize={'none'}
-          style={{  fontSize: 14, borderColor: colors.primary, paddingVertical: 12, backgroundColor: 'white' }}
+          style={{  fontSize: 20, borderColor: colors.primary, paddingVertical: 12, backgroundColor: 'white' }}
           labelStyle={{  display: 'none' }}
         />
       </View>
@@ -75,12 +75,20 @@ export default function Auth() {
           placeholder="Password"
           autoCapitalize={'none'}
           labelStyle={{  display: 'none' }}
-          style={{  fontSize: 14, borderColor: colors.primary, paddingVertical: 12, backgroundColor: 'white' }}
+          style={{  fontSize: 20, borderColor: colors.primary, paddingVertical: 12, backgroundColor: 'white' }}
         />
       </View>
-      <View style={[styles.verticallySpaced, styles.mt20,{width: '60%', alignSelf: 'center'}]}>
+      <View style={[styles.verticallySpaced, {width: '60%', alignSelf: 'center', marginTop: 20}]}>
         <TouchableOpacity
-          style={[styles.customButton,{backgroundColor: '#009FE3'}]}
+            style={[styles.customButton,{backgroundColor: '#009FE3', 
+            shadowColor: '#000',
+            shadowOffset: { width: 3, height: 3 },
+            shadowOpacity: 0.2,
+            shadowRadius: 6,
+            elevation: 8,
+            justifyContent: 'center',
+            alignItems: 'center',
+            }]}
           disabled={loading}
           onPress={signInWithEmail}
         >
@@ -89,7 +97,7 @@ export default function Auth() {
       </View>
       <View style={styles.verticallySpaced}>
         <TouchableOpacity
-          style={[styles.customButton, { width: '60%', alignSelf: 'center', borderWidth: .5, borderColor: colors.primary, backgroundColor: 'black ' }]}
+          style={[styles.customButton, { width: '60%', alignSelf: 'center',  borderColor: colors.primary, marginTop: 220}]}
           disabled={loading}
           onPress={signUpWithEmail}
         >
@@ -103,7 +111,7 @@ export default function Auth() {
 
 const styles = StyleSheet.create({
   container: {
-    marginTop: 200,
+    marginTop: 170,
     padding: 12,
   },
   verticallySpaced: {
@@ -115,7 +123,7 @@ const styles = StyleSheet.create({
     marginTop: 50,
   },
   customButton: {
-    backgroundColor: colors.primary,
+    // backgroundColor: colors.primary,
     borderRadius: 30,
     paddingVertical: 12,
     paddingHorizontal: 32,

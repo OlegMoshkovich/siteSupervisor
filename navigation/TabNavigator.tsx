@@ -21,6 +21,11 @@ export default function TabNavigator({ session }: { session: Session }) {
           if (route.name === 'Retrieve') iconName = 'search';
           return <Ionicons name={iconName} size={size} color={color} />;
         },
+        tabBarStyle: {
+          borderTopWidth: 0, // Remove the top border
+          elevation: 0,      // Remove shadow on Android
+          shadowOpacity: 0,  // Remove shadow on iOS
+        },
       })}
     >
       <Tab.Screen name="Add">

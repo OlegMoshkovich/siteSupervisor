@@ -182,12 +182,10 @@ export default function MainScreen(props: any) {
               onPress={item.onPress}
               disabled={item.disabled}
               style={{
-                margin: 6,
-                // opacity: item.disabled ? 0.5 : 1,
+                margin: 6,     
                 width: 91, // ~5.7em at 16px base
                 height: 91,
                 borderRadius: 1000,
-                // backgroundColor: '#d42a02',
                 backgroundColor: '#545251',
                 borderWidth: 0,
                 // backgroundColor: '#c7c3c0',
@@ -215,7 +213,7 @@ export default function MainScreen(props: any) {
                 }}
               >
                 {item.icon === 'camera' && item.isUploading && uploading ? (
-                  <ActivityIndicator size="large" color={colors.primary} />
+            <ActivityIndicator size="large" color={'#d42a02'} />
                 ) : (
                   <Ionicons name={item.icon as any} size={32} color="white" />
                 )}

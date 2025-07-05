@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
-import { StyleSheet, View, Alert, Image, Button, TouchableOpacity, Text } from 'react-native'
+import { StyleSheet, View, Alert, Image, Button, TouchableOpacity, Text, ActivityIndicator } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
 
 interface Props {
@@ -94,7 +94,25 @@ export default function Avatar({ url, size = 150, onUpload }: Props) {
         onPress={uploadAvatar}
         disabled={uploading}
         activeOpacity={0.7}
-        style={{ alignItems: 'center', justifyContent: 'center' }}
+        // style={{ alignItems: 'center', justifyContent: 'center' }}
+        style={{
+          margin: 6,     
+          width: 100, // ~5.7em at 16px base
+          height: 100,
+          borderRadius: 100,
+          // backgroundColor: '#545251',
+          borderWidth: 0,
+          // backgroundColor: '#c7c3c0',
+          shadowColor: '#000',
+          shadowOffset: { width: 10, height: 10 },
+          shadowOpacity: 0.2,
+          shadowRadius: 8,
+          elevation: 8,
+          // Simulate inner shadow/highlight with border and overlay
+          // (React Native doesn't support inset shadow, so we approximate)
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
       >
         {avatarUrl ? (
           <Image
@@ -103,7 +121,9 @@ export default function Avatar({ url, size = 150, onUpload }: Props) {
             style={[avatarSize, styles.avatar, styles.image]}
           />
         ) : (
-          <View style={[avatarSize, styles.avatar, styles.noImage]} />
+          <View style={[avatarSize, styles.avatar, styles.noImage]} >
+                <ActivityIndicator size="large" color={'#d42a02'} />
+          </View>
         )}
       </TouchableOpacity>
     </View>
@@ -121,11 +141,13 @@ const styles = StyleSheet.create({
     paddingTop: 0,
   },
   noImage: {
-    backgroundColor: '#333',
+    // backgroundColor: '#333',
     borderWidth: .5,
-    borderStyle: 'solid',
+    // borderStyle: 'solid',
     borderColor: 'rgb(200, 200, 200)',
-    borderRadius: 5,
+    borderRadius: 100,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   uploadButton: {
     backgroundColor: 'lightgrey',

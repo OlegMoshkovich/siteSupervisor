@@ -19,7 +19,16 @@ const DropDown: React.FC<DropDownProps> = ({ items, selectedItem, setSelectedIte
       <TouchableOpacity
         activeOpacity={0.8}
         onPress={() => setShowDropdown(true)}
-        
+        style={{
+          shadowColor: '#000',
+          shadowOffset: { width: 2, height: 2 },
+          shadowOpacity: 0.1,
+          shadowRadius: 6,
+          elevation: 8,
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+  
       >
         <View style={{
           borderWidth: .5,
@@ -30,6 +39,7 @@ const DropDown: React.FC<DropDownProps> = ({ items, selectedItem, setSelectedIte
           justifyContent: 'space-between',
           paddingHorizontal: 12,
           backgroundColor: 'white',
+          width: '70%',
         }}>
           <Text style={{ height: 40, lineHeight: 40, color: selectedItem ? '#222' : '#888' }}>
             {selectedItem || placeholder}

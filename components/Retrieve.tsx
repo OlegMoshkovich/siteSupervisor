@@ -177,9 +177,6 @@ export default function RetrieveScreen(props: any) {
           rightActionFontSize: 15,
           style: { paddingHorizontal: 16 },
           titleStyle: { color: colors.primary },
-          headerAsButton: true,
-          // bottomBorder: true,
-          
           rightActionElement: 'Close',
           onRightAction: () => setDialogVisible(false),
           onHeaderPress: () => setDialogVisible(false),
@@ -188,7 +185,7 @@ export default function RetrieveScreen(props: any) {
         onClose={() => setDialogVisible(false)}
       >
         {photosLoading ? (
-          <ActivityIndicator size="large" color={colors.primary} />
+           <ActivityIndicator size="large" color={'#d42a02'} />
         ) : photos.length === 0 ? (
           <Text>No photos available.</Text>
         ) : (

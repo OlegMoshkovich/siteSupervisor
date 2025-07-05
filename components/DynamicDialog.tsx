@@ -48,6 +48,7 @@ const DynamicDialog: React.FC<DynamicDialogProps> = ({
               bottom: 0,
               zIndex: 0,
             }}
+            
             activeOpacity={1}
             onPress={onClose}
           />
@@ -65,7 +66,7 @@ const DynamicDialog: React.FC<DynamicDialogProps> = ({
             style={{
               flex: 1,
               backgroundColor: 'white',
-              borderWidth: .5,
+              // borderWidth: .5,
               borderColor: 'colors.primary',
               borderTopLeftRadius: 6,
               borderTopRightRadius: 6,
