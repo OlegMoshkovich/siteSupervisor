@@ -49,6 +49,7 @@ export default function RetrieveScreen(props: any) {
   const [notes, setNotes] = useState<any[]>([]);
   const [notesLoading, setNotesLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'photos' | 'notes'>('photos');
+  const [checkedNotes, setCheckedNotes] = useState<{ [id: string]: boolean }>({});
 
   const handlePickAndUpload = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -168,6 +169,10 @@ export default function RetrieveScreen(props: any) {
     fetchNotes();
   }, [activeTab]);
 
+  const handleOpenNoteDialog = () => {
+    Alert.alert('Note dialog not implemented yet');
+  };
+
   return (
     <View style={{ flex: 1, alignItems: 'center', backgroundColor: 'white', paddingTop: 80 }}>
       <View style={{ width: '86%', flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -215,40 +220,61 @@ export default function RetrieveScreen(props: any) {
           <Text style={{ alignSelf: 'center', marginTop: 0 }}>No photos available.</Text>
         ) : (
           <>
-            <View style={{ width: '100%', justifyContent: 'flex-start' }}>
-              {/* Tab Bar */}
-              <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 12 }}>
-                <TouchableOpacity
-                  style={{
-                    flex: 1,
-                    alignItems: 'center',
-                    paddingVertical: 12,
-                    borderBottomWidth: 3,
-                    borderBottomColor: activeTab === 'photos' ? colors.primary : 'transparent',
-                    backgroundColor: activeTab === 'photos' ? '#fff4f0' : 'white',
-                  }}
-                  onPress={() => setActiveTab('photos')}
-                >
-                  <Text style={{ fontSize: 16, color: activeTab === 'photos' ? colors.primary : '#888' }}>Photos</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{
-                    flex: 1,
-                    alignItems: 'center',
-                    paddingVertical: 12,
-                    borderBottomWidth: 3,
-                    borderBottomColor: activeTab === 'notes' ? colors.primary : 'transparent',
-                    backgroundColor: activeTab === 'notes' ? '#fff4f0' : 'white',
-                  }}
-                  onPress={() => setActiveTab('notes')}
-                >
-                  <Text style={{ fontSize: 16, color: activeTab === 'notes' ? colors.primary : '#888' }}>Notes</Text>
-                </TouchableOpacity>
+            <View style={{ width: '100%', justifyContent: 'flex-start',   }}>
+              {/* Action Buttons */}
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginBottom: 10, width: '90%', alignSelf: 'center',  borderRadius: 20, paddingBottom: 0 }}>
+                {[
+                  { icon: 'document-text', onPress: () => { setActiveTab('notes'); }, disabled: false },
+                  { icon: 'camera', onPress: () => { setActiveTab('photos'); }, disabled: uploading, isUploading: true },
+                ].map((item, idx) => (
+                  <TouchableOpacity
+                    key={idx}
+                    onPress={item.onPress}
+                    disabled={item.disabled}
+                    style={{
+                      marginHorizontal: 6,
+                      marginBottom: 10,
+                      width: 140,
+                      height: 30,
+                      borderRadius: 1000,
+                      borderWidth: 1,
+                      borderColor: colors.primary,
+                      shadowColor: '#000',
+                      shadowOffset: { width: 10, height: 10 },
+                      shadowRadius: 8,
+                      elevation: 8,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <View
+                      style={{
+                        width: 90,
+                        height: 90,
+                        borderRadius: 45,
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <Ionicons
+                        name={item.icon as any}
+                        size={24}
+                        color={
+                          (item.icon === 'document-text' && activeTab === 'notes') ||
+                          (item.icon === 'camera' && activeTab === 'photos')
+                            ? colors.secondary
+                            : colors.primary
+                        }
+                      />
+                    </View>
+                  </TouchableOpacity>
+                ))}
               </View>
+              
 
               {/* Tab Content */}
               {activeTab === 'photos' && (
-                <ScrollView  contentContainerStyle={{ padding: 0 }}>
+                <ScrollView  contentContainerStyle={{ paddingBottom: 100 }}>
                   {photos.map((photo) =>
                     photo.dataUrl ? (
                       <View
@@ -290,7 +316,7 @@ export default function RetrieveScreen(props: any) {
                               onChange={(checked) =>
                                 setCheckedPhotos((prev) => ({ ...prev, [photo.id]: checked }))
                               }
-                              size={32}
+                              size={28}
                             />
                           </View>
                         ) : null}
@@ -313,7 +339,7 @@ export default function RetrieveScreen(props: any) {
                 </ScrollView>
               )}
               {activeTab === 'notes' && (
-                <ScrollView contentContainerStyle={{ padding: 0 }}>
+                <ScrollView contentContainerStyle={{  paddingBottom: 100 }}>
                   {notesLoading ? (
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                       {/* <ActivityIndicator size="large" color={'#d42a02'} /> */}
@@ -327,18 +353,33 @@ export default function RetrieveScreen(props: any) {
                         key={note.id}
                         style={{ marginBottom: 24, alignItems: 'center' }}
                       >
-                        <Text
+                        <View
                           style={{
+                            flexDirection: 'row',
+                            alignItems: 'center',
                             width: 300,
-                            fontWeight: 'bold',
-                            fontSize: 18,
-                            color: '#222',
                             alignSelf: 'center',
                             marginBottom: 4,
                           }}
                         >
-                          {note.title}
-                        </Text>
+                          <Text
+                            style={{
+                              flex: 1,
+                              fontWeight: 'bold',
+                              fontSize: 18,
+                              color: '#222',
+                            }}
+                          >
+                            {note.title}
+                          </Text>
+                          <CheckBox
+                            checked={!!checkedNotes[note.id]}
+                            onChange={(checked) =>
+                              setCheckedNotes((prev) => ({ ...prev, [note.id]: checked }))
+                            }
+                            size={28}
+                          />
+                        </View>
                         <Text
                           style={{
                             width: 300,
@@ -375,7 +416,7 @@ export default function RetrieveScreen(props: any) {
                   backgroundColor: '#d42a02',
                   borderRadius: 100,
                   paddingVertical: 10,
-                  paddingHorizontal: 32,
+                  paddingHorizontal: 28,
                   shadowColor: '#000',
                   shadowOffset: { width: 3, height: 3 },
                   shadowOpacity: 0.2,
@@ -383,12 +424,12 @@ export default function RetrieveScreen(props: any) {
                   elevation: 8,
                   justifyContent: 'center',
                   alignItems: 'center',
-                  opacity: Object.values(checkedPhotos).some(Boolean) ? 1 : 0.5,
+                  opacity: Object.values(checkedPhotos).some(Boolean) || Object.values(checkedNotes).some(Boolean) ? 1 : 0.5,
                 }}
                 onPress={() => {
-                  /* handle action for selected photos here */
+                  /* handle action for selected photos or notes here */
                 }}
-                disabled={!Object.values(checkedPhotos).some(Boolean)}
+                disabled={!(Object.values(checkedPhotos).some(Boolean) || Object.values(checkedNotes).some(Boolean))}
               >
                 <Text style={{ color: 'white', fontSize: 16 }}>Generate Report</Text>
               </TouchableOpacity>
