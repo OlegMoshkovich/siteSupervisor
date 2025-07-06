@@ -49,8 +49,10 @@ export default function RetrieveScreen(props: any) {
   const [NotesAccordionOpen, setNotesAccordionOpen] = useState(false);
   const [notes, setNotes] = useState<any[]>([]);
   const [notesLoading, setNotesLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'photos' | 'notes'>('photos');
+  const [activeTab, setActiveTab] = useState<'photos' | 'notes' | 'summaries'>('photos');
   const [checkedNotes, setCheckedNotes] = useState<{ [id: string]: boolean }>({});
+  const [summaries, setSummaries] = useState<any[]>([]);
+  const [summariesLoading, setSummariesLoading] = useState(false);
 
   const handlePickAndUpload = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -170,6 +172,22 @@ export default function RetrieveScreen(props: any) {
     fetchNotes();
   }, [activeTab]);
 
+  useEffect(() => {
+    if (activeTab !== 'summaries') return;
+    setSummariesLoading(true);
+    setSummaries([]);
+    const fetchSummaries = async () => {
+      const { data, error } = await supabase.from('summaries').select('*').order('created_at', { ascending: false });
+      if (error) {
+        setSummariesLoading(false);
+        return;
+      }
+      setSummaries(data);
+      setSummariesLoading(false);
+    };
+    fetchSummaries();
+  }, [activeTab]);
+
   const handleOpenNoteDialog = () => {
     Alert.alert('Note dialog not implemented yet');
   };
@@ -273,8 +291,9 @@ export default function RetrieveScreen(props: any) {
               {/* Action Buttons */}
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginBottom: 10, width: '90%', alignSelf: 'center',  borderRadius: 20, paddingBottom: 0 }}>
                 {[
-                  { icon: 'document-text', onPress: () => { setActiveTab('notes'); }, disabled: false },
-                  { icon: 'camera', onPress: () => { setActiveTab('photos'); }, disabled: uploading, isUploading: true },
+                  { icon: 'document-text', onPress: () => { setActiveTab('notes'); }, disabled: false, label: 'Notes' },
+                  { icon: 'camera', onPress: () => { setActiveTab('photos'); }, disabled: uploading, isUploading: true, label: 'Photos' },
+                  { icon: 'book', onPress: () => { setActiveTab('summaries'); }, disabled: false, label: 'Summaries' },
                 ].map((item, idx) => (
                   <TouchableOpacity
                     key={idx}
@@ -283,7 +302,7 @@ export default function RetrieveScreen(props: any) {
                     style={{
                       marginHorizontal: 6,
                       marginBottom: 10,
-                      width: 140,
+                      width: 90,
                       height: 30,
                       borderRadius: 1000,
                       borderWidth: 1,
@@ -294,28 +313,21 @@ export default function RetrieveScreen(props: any) {
                       elevation: 8,
                       justifyContent: 'center',
                       alignItems: 'center',
+                      flexDirection: 'row',
                     }}
                   >
-                    <View
-                      style={{
-                        width: 90,
-                        height: 90,
-                        borderRadius: 45,
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                      }}
-                    >
-                      <Ionicons
-                        name={item.icon as any}
-                        size={24}
-                        color={
-                          (item.icon === 'document-text' && activeTab === 'notes') ||
-                          (item.icon === 'camera' && activeTab === 'photos')
-                            ? colors.secondary
-                            : colors.primary
-                        }
-                      />
-                    </View>
+                    <Ionicons
+                      name={item.icon as any}
+                      size={24}
+                      color={
+                        (item.icon === 'document-text' && activeTab === 'notes') ||
+                        (item.icon === 'camera' && activeTab === 'photos') ||
+                        (item.icon === 'book' && activeTab === 'summaries')
+                          ? colors.secondary
+                          : colors.primary
+                      }
+                    />
+                    {/* <Text style={{ marginLeft: 8, color: (item.icon === 'document-text' && activeTab === 'notes') || (item.icon === 'camera' && activeTab === 'photos') || (item.icon === 'book' && activeTab === 'summaries') ? colors.secondary : colors.primary, fontWeight: 'bold' }}>{item.label}</Text> */}
                   </TouchableOpacity>
                 ))}
               </View>
@@ -440,6 +452,25 @@ export default function RetrieveScreen(props: any) {
                         >
                           {note.content}
                         </Text>
+                      </View>
+                    ))
+                  )}
+                </ScrollView>
+              )}
+              {activeTab === 'summaries' && (
+                <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+                  {summariesLoading ? (
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                      <Loader />
+                    </View>
+                  ) : summaries.length === 0 ? (
+                    <Text style={{ alignSelf: 'center', marginTop: 0 }}>No summaries available.</Text>
+                  ) : (
+                    summaries.map((summary) => (
+                      <View key={summary.id} style={{ marginBottom: 24, alignItems: 'center', borderWidth: 1, borderColor: colors.primary, borderRadius: 12, padding: 16, width: 320, alignSelf: 'center', backgroundColor: '#fafafa' }}>
+                        <Text style={{ fontWeight: 'bold', fontSize: 18, color: '#222', marginBottom: 8 }}>{summary.title}</Text>
+                        <Text style={{ fontSize: 16, color: '#444' }}>{summary.summary}</Text>
+                        <Text style={{ fontSize: 12, color: '#888', marginTop: 8 }}>{summary.created_at ? new Date(summary.created_at).toLocaleString() : ''}</Text>
                       </View>
                     ))
                   )}
