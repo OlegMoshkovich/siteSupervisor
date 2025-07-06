@@ -215,7 +215,7 @@ export default function RetrieveScreen(props: any) {
           <Text style={{ alignSelf: 'center', marginTop: 0 }}>No photos available.</Text>
         ) : (
           <>
-            <View style={{ width: '100%', height: '70%', justifyContent: 'flex-start' }}>
+            <View style={{ width: '100%', justifyContent: 'flex-start' }}>
               {/* Tab Bar */}
               <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 12 }}>
                 <TouchableOpacity
@@ -248,7 +248,7 @@ export default function RetrieveScreen(props: any) {
 
               {/* Tab Content */}
               {activeTab === 'photos' && (
-                <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 0 }}>
+                <ScrollView  contentContainerStyle={{ padding: 0 }}>
                   {photos.map((photo) =>
                     photo.dataUrl ? (
                       <View
@@ -313,7 +313,7 @@ export default function RetrieveScreen(props: any) {
                 </ScrollView>
               )}
               {activeTab === 'notes' && (
-                <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 0 }}>
+                <ScrollView contentContainerStyle={{ padding: 0 }}>
                   {notesLoading ? (
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                       {/* <ActivityIndicator size="large" color={'#d42a02'} /> */}
