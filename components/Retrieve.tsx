@@ -18,6 +18,7 @@ import DynamicDialog from './DynamicDialog';
 import colors from './colors';
 import CheckBox from './CheckBox';
 import Loader from './Loader';
+import Constants from 'expo-constants';
 
 // Define the tab param list
 type TabParamList = {
@@ -171,6 +172,47 @@ export default function RetrieveScreen(props: any) {
 
   const handleOpenNoteDialog = () => {
     Alert.alert('Note dialog not implemented yet');
+  };
+
+  const handleGenerateReport = async () => {
+    // Gather checked photo notes/titles
+    const selectedPhotoNotes = photos
+      .filter(photo => checkedPhotos[photo.id])
+      .map(photo => photo.note || photo.title || '')
+      .filter(Boolean);
+
+    // Gather checked note contents/titles
+    const selectedNoteContents = notes
+      .filter(note => checkedNotes[note.id])
+      .map(note => note.content || note.title || '')
+      .filter(Boolean);
+
+    // Combine all descriptions
+    const allDescriptions = [...selectedPhotoNotes, ...selectedNoteContents].join('\n');
+
+    let summary = '';
+    try {
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${Constants.expoConfig?.extra?.OPENAI_API_KEY || ''}`,
+        },
+        body: JSON.stringify({
+          model: 'gpt-3.5-turbo',
+          messages: [
+            { role: 'system', content: 'You are a construction project manager. Summarize the following selected site photos and notes into a professional construction report summary, highlighting key activities, issues, and progress.' },
+            { role: 'user', content: allDescriptions }
+          ],
+          max_tokens: 200,
+        }),
+      });
+      const data = await response.json();
+      summary = data.choices?.[0]?.message?.content ?? 'Summary could not be generated.';
+    } catch (err) {
+      summary = 'Summary could not be generated.';
+    }
+    Alert.alert('Report Summary', summary);
   };
 
   return (
@@ -426,9 +468,7 @@ export default function RetrieveScreen(props: any) {
                   alignItems: 'center',
                   opacity: Object.values(checkedPhotos).some(Boolean) || Object.values(checkedNotes).some(Boolean) ? 1 : 0.5,
                 }}
-                onPress={() => {
-                  /* handle action for selected photos or notes here */
-                }}
+                onPress={handleGenerateReport}
                 disabled={!(Object.values(checkedPhotos).some(Boolean) || Object.values(checkedNotes).some(Boolean))}
               >
                 <Text style={{ color: 'white', fontSize: 16 }}>Generate Report</Text>
