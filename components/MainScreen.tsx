@@ -351,7 +351,7 @@ export default function MainScreen(props: any) {
                 multiline={true}
                 style={{
                   width: 300,
-                  minHeight: 80,
+                  minHeight: 160,
                   borderWidth: 1,
                   borderColor: '#ccc',
                   borderRadius: 10,

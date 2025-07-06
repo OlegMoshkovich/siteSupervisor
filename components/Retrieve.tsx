@@ -53,6 +53,7 @@ export default function RetrieveScreen(props: any) {
   const [checkedNotes, setCheckedNotes] = useState<{ [id: string]: boolean }>({});
   const [summaries, setSummaries] = useState<any[]>([]);
   const [summariesLoading, setSummariesLoading] = useState(false);
+  const [reportLoading, setReportLoading] = useState(false);
 
   const handlePickAndUpload = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -193,69 +194,74 @@ export default function RetrieveScreen(props: any) {
   };
 
   const handleGenerateReport = async () => {
-    // Gather checked photo notes/titles
-    const selectedPhotoNotes = photos
-      .filter(photo => checkedPhotos[photo.id])
-      .map(photo => photo.note || photo.title || '')
-      .filter(Boolean);
-
-    // Gather checked note contents/titles
-    const selectedNoteContents = notes
-      .filter(note => checkedNotes[note.id])
-      .map(note => note.content || note.title || '')
-      .filter(Boolean);
-
-    // Combine all descriptions
-    const allDescriptions = [...selectedPhotoNotes, ...selectedNoteContents].join('\n');
-
-    let summary = '';
+    setReportLoading(true);
     try {
-      const apiKey = Constants.expoConfig?.extra?.OPENAI_API_KEY || '';
-      const requestBody = {
-        model: 'gpt-3.5-turbo',
-        messages: [
-          { role: 'system', content: 'You are a construction project manager. Summarize the following selected site photos and notes into a professional construction report summary, highlighting key activities, issues, and progress.' },
-          { role: 'user', content: allDescriptions }
-        ],
-        max_tokens: 200,
-      };
-      console.log('OpenAI API Key:', apiKey ? '[SET]' : '[NOT SET]');
-      console.log('OpenAI Request Body:', JSON.stringify(requestBody));
-      const response = await fetch('https://api.openai.com/v1/chat/completions', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${apiKey}`,
-        },
-        body: JSON.stringify(requestBody),
-      });
-      console.log('OpenAI Response Status:', response.status);
-      const data = await response.json();
-      console.log('OpenAI Response JSON:', data);
-      summary = data.choices?.[0]?.message?.content ?? 'Summary could not be generated.';
-    } catch (err) {
-      console.log('OpenAI Fetch Error:', err);
-      summary = 'Summary could not be generated.';
-    }
+      // Gather checked photo notes/titles
+      const selectedPhotoNotes = photos
+        .filter(photo => checkedPhotos[photo.id])
+        .map(photo => photo.note || photo.title || '')
+        .filter(Boolean);
 
-    // Save the summary to Supabase
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      const reportTitle = 'Site Report ' + new Date().toLocaleString();
-      const { error } = await supabase.from('summaries').insert([
-        {
-          user_id: user?.id,
-          title: reportTitle,
-          summary,
-        },
-      ]);
-      if (error) {
-        Alert.alert('Error', 'Could not save summary: ' + error.message);
-      } else {
-        Alert.alert('Report Summary', summary + '\n\n(Summary saved to reports)');
+      // Gather checked note contents/titles
+      const selectedNoteContents = notes
+        .filter(note => checkedNotes[note.id])
+        .map(note => note.content || note.title || '')
+        .filter(Boolean);
+
+      // Combine all descriptions
+      const allDescriptions = [...selectedPhotoNotes, ...selectedNoteContents].join('\n');
+
+      let summary = '';
+      try {
+        const apiKey = Constants.expoConfig?.extra?.OPENAI_API_KEY || '';
+        const requestBody = {
+          model: 'gpt-3.5-turbo',
+          messages: [
+            { role: 'system', content: 'You are a construction project manager. Summarize the following selected site photos and notes into a professional construction report summary, highlighting key activities, issues, and progress.' },
+            { role: 'user', content: allDescriptions }
+          ],
+          max_tokens: 200,
+        };
+        console.log('OpenAI API Key:', apiKey ? '[SET]' : '[NOT SET]');
+        console.log('OpenAI Request Body:', JSON.stringify(requestBody));
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`,
+          },
+          body: JSON.stringify(requestBody),
+        });
+        console.log('OpenAI Response Status:', response.status);
+        const data = await response.json();
+        console.log('OpenAI Response JSON:', data);
+        summary = data.choices?.[0]?.message?.content ?? 'Summary could not be generated.';
+      } catch (err) {
+        console.log('OpenAI Fetch Error:', err);
+        summary = 'Summary could not be generated.';
       }
-    } catch (err) {
-      Alert.alert('Error', 'Could not save summary.');
+
+      // Save the summary to Supabase
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        const reportTitle = 'Site Report ' + new Date().toLocaleString();
+        const { error } = await supabase.from('summaries').insert([
+          {
+            user_id: user?.id,
+            title: reportTitle,
+            summary,
+          },
+        ]);
+        if (error) {
+          Alert.alert('Error', 'Could not save summary: ' + error.message);
+        } else {
+          Alert.alert('Report Summary', summary + '\n\n(Summary saved to reports)');
+        }
+      } catch (err) {
+        Alert.alert('Error', 'Could not save summary.');
+      }
+    } finally {
+      setReportLoading(false);
     }
   };
 
@@ -531,6 +537,24 @@ export default function RetrieveScreen(props: any) {
                 <Text style={{ color: 'white', fontSize: 16 }}>Generate Report</Text>
               </TouchableOpacity>
             </View>
+
+            {/* Loader overlay while generating report */}
+            {reportLoading && (
+              <View style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: 'rgba(255,255,255,0.6)',
+                justifyContent: 'center',
+                alignItems: 'center',
+                zIndex: 9999,
+              }}>
+                <Loader />
+                <Text style={{ marginTop: 16, fontSize: 16, color: colors.primary }}>Generating report...</Text>
+              </View>
+            )}
           </>
         )}
       </DynamicDialog>
