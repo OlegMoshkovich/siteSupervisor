@@ -214,185 +214,181 @@ export default function RetrieveScreen(props: any) {
           <Text style={{ alignSelf: 'center', marginTop: 0 }}>No photos available.</Text>
         ) : (
           <>
-            {/* Accordion for all photos */}
-            <TouchableOpacity
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                paddingHorizontal: 20,
-                paddingVertical: 10,
-                borderWidth: 1,
-                borderColor: colors.primary,
-                borderRadius: 20,
-                marginBottom: 12,
-                marginTop: 4,
-                width: '80%',
-                alignSelf: 'center',
-              }}
-              onPress={() => {
-                setPhotoAccordionOpen((open) => {
-                  const newOpen = !open;
-                  if (newOpen) setNotesAccordionOpen(false);
-                  return newOpen;
-                });
-              }}
-            >
-              <Text style={{ fontSize: 16, color: colors.primary }}>
-                Photos
-              </Text>
-              <Ionicons
-                name={PhotoAccordionOpen ? 'chevron-up' : 'chevron-down'}
-                size={24}
-                color={colors.primary}
-              />
-            </TouchableOpacity>
-
-            {PhotoAccordionOpen && (
-              <ScrollView contentContainerStyle={{ padding: 0, maxHeight: 100}}>
-              {photos.map((photo) =>
-                photo.dataUrl ? (
-                  <View
-                    key={photo.id}
-                    style={{ marginBottom: 24, alignItems: 'center' }}
-                  >
-                    <Image
-                      source={{ uri: photo.dataUrl }}
-                      style={{
-                        width: 300,
-                        height: 300,
-                        marginBottom: 10,
-                        borderRadius: 8,
-                        alignSelf: 'center',
-                      }}
-                    />
-                    {photo.title ? (
+            <View style={{ width: '100%', height: '70%', justifyContent: 'flex-start' }}>
+              <TouchableOpacity
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  paddingHorizontal: 20,
+                  paddingVertical: 10,
+                  borderWidth: 1,
+                  borderColor: colors.primary,
+                  borderRadius: 20,
+                  marginBottom: 12,
+                  marginTop: 4,
+                  width: '80%',
+                  alignSelf: 'center',
+                }}
+                onPress={() => {
+                  setPhotoAccordionOpen((open) => {
+                    const newOpen = !open;
+                    if (newOpen) setNotesAccordionOpen(false);
+                    return newOpen;
+                  });
+                }}
+              >
+                <Text style={{ fontSize: 16, color: colors.primary }}>
+                  Photos
+                </Text>
+                <Ionicons
+                  name={PhotoAccordionOpen ? 'chevron-up' : 'chevron-down'}
+                  size={24}
+                  color={colors.primary}
+                />
+              </TouchableOpacity>
+              {PhotoAccordionOpen && (
+                <ScrollView style={{ maxHeight: 600, height: 600 }} contentContainerStyle={{ padding: 0 }}>
+                  {photos.map((photo) =>
+                    photo.dataUrl ? (
                       <View
-                        style={{
-                          flexDirection: 'row',
-                          alignItems: 'center',
-                          width: 300,
-                          alignSelf: 'center',
-                          marginBottom: 4,
-                        }}
+                        key={photo.id}
+                        style={{ marginBottom: 24, alignItems: 'center' }}
+                      >
+                        <Image
+                          source={{ uri: photo.dataUrl }}
+                          style={{
+                            width: 300,
+                            height: 300,
+                            marginBottom: 10,
+                            borderRadius: 8,
+                            alignSelf: 'center',
+                          }}
+                        />
+                        {photo.title ? (
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              alignItems: 'center',
+                              width: 300,
+                              alignSelf: 'center',
+                              marginBottom: 4,
+                            }}
+                          >
+                            <Text
+                              style={{
+                                flex: 1,
+                                fontWeight: 'bold',
+                                fontSize: 18,
+                                color: '#222',
+                              }}
+                            >
+                              {photo.title}
+                            </Text>
+                            <CheckBox
+                              checked={!!checkedPhotos[photo.id]}
+                              onChange={(checked) =>
+                                setCheckedPhotos((prev) => ({ ...prev, [photo.id]: checked }))
+                              }
+                              size={32}
+                            />
+                          </View>
+                        ) : null}
+                        {photo.note ? (
+                          <Text
+                            style={{
+                              width: 300,
+                              fontSize: 16,
+                              color: '#444',
+                              alignSelf: 'center',
+                              marginBottom: 4,
+                            }}
+                          >
+                            {photo.note}
+                          </Text>
+                        ) : null}
+                      </View>
+                    ) : null
+                  )}
+                </ScrollView>
+              )}
+
+              <TouchableOpacity
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  paddingHorizontal: 20,
+                  paddingVertical: 10,
+                  borderWidth: 1,
+                  borderColor: colors.primary,
+                  borderRadius: 20,
+                  marginBottom: 12,
+                  marginTop: 4,
+                  width: '80%',
+                  alignSelf: 'center',
+                }}
+                onPress={() => {
+                  setNotesAccordionOpen((open) => {
+                    const newOpen = !open;
+                    if (newOpen) setPhotoAccordionOpen(false);
+                    return newOpen;
+                  });
+                }}
+              >
+                <Text style={{ fontSize: 16, color: colors.primary }}>
+                  Notes
+                </Text>
+                <Ionicons
+                  name={NotesAccordionOpen ? 'chevron-up' : 'chevron-down'}
+                  size={24}
+                  color={colors.primary}
+                />
+              </TouchableOpacity>
+              {NotesAccordionOpen && (
+                <ScrollView style={{ height: 300, borderWidth: 1, borderColor: 'red' }} contentContainerStyle={{ padding: 0 }}>
+                  {notesLoading ? (
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                      {/* <ActivityIndicator size="large" color={'#d42a02'} /> */}
+                      <Loader />
+                    </View>
+                  ) : notes.length === 0 ? (
+                    <Text style={{ alignSelf: 'center', marginTop: 0 }}>No notes available.</Text>
+                  ) : (
+                    notes.map((note) => (
+                      <View
+                        key={note.id}
+                        style={{ marginBottom: 24, alignItems: 'center' }}
                       >
                         <Text
                           style={{
-                            flex: 1,
+                            width: 300,
                             fontWeight: 'bold',
                             fontSize: 18,
                             color: '#222',
+                            alignSelf: 'center',
+                            marginBottom: 4,
                           }}
                         >
-                          {photo.title}
+                          {note.title}
                         </Text>
-                        <CheckBox
-                          checked={!!checkedPhotos[photo.id]}
-                          onChange={(checked) =>
-                            setCheckedPhotos((prev) => ({ ...prev, [photo.id]: checked }))
-                          }
-                          size={32}
-                        />
+                        <Text
+                          style={{
+                            width: 300,
+                            fontSize: 16,
+                            color: '#444',
+                            alignSelf: 'center',
+                            marginBottom: 4,
+                          }}
+                        >
+                          {note.content}
+                        </Text>
                       </View>
-                    ) : null}
-                    {photo.note ? (
-                      <Text
-                        style={{
-                          width: 300,
-                          fontSize: 16,
-                          color: '#444',
-                          alignSelf: 'center',
-                          marginBottom: 4,
-                        }}
-                      >
-                        {photo.note}
-                      </Text>
-                    ) : null}
-                  </View>
-                ) : null
+                    ))
+                  )}
+                </ScrollView>
               )}
-            </ScrollView>
-            )}
-
-            
-              <TouchableOpacity
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                justifyContent: 'space-between',
-                paddingHorizontal: 20,
-                paddingVertical: 10,
-                borderWidth: 1,
-                borderColor: colors.primary,
-                borderRadius: 20,
-                marginBottom: 12,
-                marginTop: 4,
-                width: '80%',
-                alignSelf: 'center',
-              }}
-              onPress={() => {
-                setNotesAccordionOpen((open) => {
-                  const newOpen = !open;
-                  if (newOpen) setPhotoAccordionOpen(false);
-                  return newOpen;
-                });
-              }}
-            >
-              <Text style={{ fontSize: 16, color: colors.primary }}>
-                Notes
-              </Text>
-              <Ionicons
-                name={NotesAccordionOpen ? 'chevron-up' : 'chevron-down'}
-                size={24}
-                color={colors.primary}
-              />
-            </TouchableOpacity>
-
-            {NotesAccordionOpen && (
-              <ScrollView contentContainerStyle={{ padding: 0, height: 200}}>
-                {notesLoading ? (
-                  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                  {/* <ActivityIndicator size="large" color={'#d42a02'} /> */}
-                  <Loader />
-                </View>
-                ) : notes.length === 0 ? (
-                  <Text style={{ alignSelf: 'center', marginTop: 0 }}>No notes available.</Text>
-                ) : (
-                  notes.map((note) => (
-                    <View
-                      key={note.id}
-                      style={{ marginBottom: 24, alignItems: 'center' }}
-                    >
-                      <Text
-                        style={{
-                          width: 300,
-                          fontWeight: 'bold',
-                          fontSize: 18,
-                          color: '#222',
-                          alignSelf: 'center',
-                          marginBottom: 4,
-                        }}
-                      >
-                        {note.title}
-                      </Text>
-                      <Text
-                        style={{
-                          width: 300,
-                          fontSize: 16,
-                          color: '#444',
-                          alignSelf: 'center',
-                          marginBottom: 4,
-                        }}
-                      >
-                        {note.content}
-                      </Text>
-                    </View>
-                  ))
-                )}
-              </ScrollView>
-            )}
-
-           
+            </View>
 
             {/* Generate Report button fixed at the bottom of the dialog */}
             <View
