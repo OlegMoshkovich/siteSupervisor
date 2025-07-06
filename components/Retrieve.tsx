@@ -230,7 +230,13 @@ export default function RetrieveScreen(props: any) {
                 width: '80%',
                 alignSelf: 'center',
               }}
-              onPress={() => setPhotoAccordionOpen((open) => !open)}
+              onPress={() => {
+                setPhotoAccordionOpen((open) => {
+                  const newOpen = !open;
+                  if (newOpen) setNotesAccordionOpen(false);
+                  return newOpen;
+                });
+              }}
             >
               <Text style={{ fontSize: 16, color: colors.primary }}>
                 Photos
@@ -243,7 +249,7 @@ export default function RetrieveScreen(props: any) {
             </TouchableOpacity>
 
             {PhotoAccordionOpen && (
-              <ScrollView contentContainerStyle={{ padding: 0 }}>
+              <ScrollView contentContainerStyle={{ padding: 0, maxHeight: 100}}>
               {photos.map((photo) =>
                 photo.dataUrl ? (
                   <View
@@ -324,7 +330,13 @@ export default function RetrieveScreen(props: any) {
                 width: '80%',
                 alignSelf: 'center',
               }}
-              onPress={() => setNotesAccordionOpen((open) => !open)}
+              onPress={() => {
+                setNotesAccordionOpen((open) => {
+                  const newOpen = !open;
+                  if (newOpen) setPhotoAccordionOpen(false);
+                  return newOpen;
+                });
+              }}
             >
               <Text style={{ fontSize: 16, color: colors.primary }}>
                 Notes
@@ -337,7 +349,7 @@ export default function RetrieveScreen(props: any) {
             </TouchableOpacity>
 
             {NotesAccordionOpen && (
-              <ScrollView contentContainerStyle={{ padding: 0 }}>
+              <ScrollView contentContainerStyle={{ padding: 0, height: 200}}>
                 {notesLoading ? (
                   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                   {/* <ActivityIndicator size="large" color={'#d42a02'} /> */}
