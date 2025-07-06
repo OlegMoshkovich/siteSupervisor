@@ -100,11 +100,11 @@ export default function Auth() {
       </View>
       <View style={styles.verticallySpaced}>
         <TouchableOpacity
-          style={[styles.customButton, { width: '60%', alignSelf: 'center',  borderColor: colors.primary, marginTop: 120}]}
+          style={[styles.customButton, { width: '60%', alignSelf: 'center',  borderColor: colors.primary, marginTop: 0}]}
           disabled={loading}
           onPress={signUpWithEmail}
         >
-          <Text style={[styles.buttonText, { color: '#009FE3', fontSize: 18 }]}>Sign up</Text>
+          <Text style={[styles.buttonText, { color: '#009FE3', fontSize: 16 }]}>Sign up</Text>
         </TouchableOpacity>
       </View>
       

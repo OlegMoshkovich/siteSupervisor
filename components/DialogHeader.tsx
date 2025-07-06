@@ -159,8 +159,8 @@ const styles = StyleSheet.create({
   bottomBorder: {
     width: "90%",
     alignSelf: "center",
-    borderBottomWidth: .5,
-    borderBottomColor: "black",
+    borderBottomWidth: .2,
+    borderBottomColor: 'grey',
   },
 });
 

@@ -114,25 +114,13 @@ export default function Account({ session }: { session: Session }) {
         label="Company" value={website || ''} onChangeText={(text) => setWebsite(text)} />
       </View>
 
-      {/* <View style={[styles.verticallySpaced, styles.mt20]}>
-        <TouchableOpacity
-          style={[styles.customButton, loading && styles.disabledButton, { borderWidth: .5, borderColor: colors.primary }]}
-          onPress={() => updateProfile({ username, website, avatar_url: avatarUrl })}
-          disabled={loading}
-        >
-          <Text style={styles.buttonText}>{loading ? 'Loading ...' : 'Update'}</Text>
-        </TouchableOpacity>
-      </View> */}
-
       <View style={[styles.verticallySpaced, styles.mt20]}>
         <TouchableOpacity
-          // style={[styles.customButton, { borderWidth: .5, borderColor: colors.primary }]}
           onPress={handleSignOut}
           disabled={signingOut}
            style={{
             margin: 6,     
             borderRadius: 1000,
-            // backgroundColor: '#545251',
             borderWidth: .5,
             borderColor: colors.secondary,
             height: 40,
@@ -143,8 +131,6 @@ export default function Account({ session }: { session: Session }) {
             shadowOpacity: 0.2,
             shadowRadius: 8,
             elevation: 8,
-            // Simulate inner shadow/highlight with border and overlay
-            // (React Native doesn't support inset shadow, so we approximate)
             justifyContent: 'center',
             alignItems: 'center',
           }}
