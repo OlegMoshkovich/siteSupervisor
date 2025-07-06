@@ -192,24 +192,31 @@ export default function RetrieveScreen(props: any) {
 
     let summary = '';
     try {
+      const apiKey = Constants.expoConfig?.extra?.OPENAI_API_KEY || '';
+      const requestBody = {
+        model: 'gpt-3.5-turbo',
+        messages: [
+          { role: 'system', content: 'You are a construction project manager. Summarize the following selected site photos and notes into a professional construction report summary, highlighting key activities, issues, and progress.' },
+          { role: 'user', content: allDescriptions }
+        ],
+        max_tokens: 200,
+      };
+      console.log('OpenAI API Key:', apiKey ? '[SET]' : '[NOT SET]');
+      console.log('OpenAI Request Body:', JSON.stringify(requestBody));
       const response = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${Constants.expoConfig?.extra?.OPENAI_API_KEY || ''}`,
+          'Authorization': `Bearer ${apiKey}`,
         },
-        body: JSON.stringify({
-          model: 'gpt-3.5-turbo',
-          messages: [
-            { role: 'system', content: 'You are a construction project manager. Summarize the following selected site photos and notes into a professional construction report summary, highlighting key activities, issues, and progress.' },
-            { role: 'user', content: allDescriptions }
-          ],
-          max_tokens: 200,
-        }),
+        body: JSON.stringify(requestBody),
       });
+      console.log('OpenAI Response Status:', response.status);
       const data = await response.json();
+      console.log('OpenAI Response JSON:', data);
       summary = data.choices?.[0]?.message?.content ?? 'Summary could not be generated.';
     } catch (err) {
+      console.log('OpenAI Fetch Error:', err);
       summary = 'Summary could not be generated.';
     }
     Alert.alert('Report Summary', summary);
