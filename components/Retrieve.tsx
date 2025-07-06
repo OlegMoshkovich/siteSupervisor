@@ -45,6 +45,9 @@ export default function RetrieveScreen(props: any) {
   const [photosLoading, setPhotosLoading] = useState(false);
   const [checkedPhotos, setCheckedPhotos] = useState<{ [id: string]: boolean }>({});
   const [PhotoAccordionOpen, setPhotoAccordionOpen] = useState(false);
+  const [NotesAccordionOpen, setNotesAccordionOpen] = useState(false);
+  const [notes, setNotes] = useState<any[]>([]);
+  const [notesLoading, setNotesLoading] = useState(false);
 
   const handlePickAndUpload = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -147,6 +150,22 @@ export default function RetrieveScreen(props: any) {
 
     fetchPhotos();
   }, [dialogVisible]);
+
+  useEffect(() => {
+    if (!NotesAccordionOpen) return;
+    setNotesLoading(true);
+    setNotes([]);
+    const fetchNotes = async () => {
+      const { data, error } = await supabase.from('notes').select('*');
+      if (error) {
+        setNotesLoading(false);
+        return;
+      }
+      setNotes(data);
+      setNotesLoading(false);
+    };
+    fetchNotes();
+  }, [NotesAccordionOpen]);
 
   return (
     <View style={{ flex: 1, alignItems: 'center', backgroundColor: 'white', paddingTop: 80 }}>
@@ -287,6 +306,78 @@ export default function RetrieveScreen(props: any) {
                 ) : null
               )}
             </ScrollView>
+            )}
+
+            
+              <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingHorizontal: 20,
+                paddingVertical: 10,
+                borderWidth: 1,
+                borderColor: colors.primary,
+                borderRadius: 20,
+                marginBottom: 12,
+                marginTop: 4,
+                width: '80%',
+                alignSelf: 'center',
+              }}
+              onPress={() => setNotesAccordionOpen((open) => !open)}
+            >
+              <Text style={{ fontSize: 16, color: colors.primary }}>
+                Notes
+              </Text>
+              <Ionicons
+                name={NotesAccordionOpen ? 'chevron-up' : 'chevron-down'}
+                size={24}
+                color={colors.primary}
+              />
+            </TouchableOpacity>
+
+            {NotesAccordionOpen && (
+              <ScrollView contentContainerStyle={{ padding: 0 }}>
+                {notesLoading ? (
+                  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                  {/* <ActivityIndicator size="large" color={'#d42a02'} /> */}
+                  <Loader />
+                </View>
+                ) : notes.length === 0 ? (
+                  <Text style={{ alignSelf: 'center', marginTop: 0 }}>No notes available.</Text>
+                ) : (
+                  notes.map((note) => (
+                    <View
+                      key={note.id}
+                      style={{ marginBottom: 24, alignItems: 'center' }}
+                    >
+                      <Text
+                        style={{
+                          width: 300,
+                          fontWeight: 'bold',
+                          fontSize: 18,
+                          color: '#222',
+                          alignSelf: 'center',
+                          marginBottom: 4,
+                        }}
+                      >
+                        {note.title}
+                      </Text>
+                      <Text
+                        style={{
+                          width: 300,
+                          fontSize: 16,
+                          color: '#444',
+                          alignSelf: 'center',
+                          marginBottom: 4,
+                        }}
+                      >
+                        {note.content}
+                      </Text>
+                    </View>
+                  ))
+                )}
+              </ScrollView>
             )}
 
            
