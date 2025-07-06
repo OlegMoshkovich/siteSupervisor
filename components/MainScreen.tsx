@@ -47,8 +47,13 @@ export default function MainScreen(props: any) {
   const [pendingTitle, setPendingTitle] = useState('');
   const [pendingNote, setPendingNote] = useState('');
   const [pendingUpload, setPendingUpload] = useState(false);
+  const [dialogMode, setDialogMode] = useState<'photo' | 'note' | null>(null);
+  const [pendingNoteTitle, setPendingNoteTitle] = useState('');
+  const [pendingNoteContent, setPendingNoteContent] = useState('');
+  const [savingNote, setSavingNote] = useState(false);
 
   const handlePickAndUpload = async () => {
+    setDialogMode('photo');
     const { status } = await ImagePicker.requestCameraPermissionsAsync();
     if (status !== 'granted') {
       Alert.alert('Permission required to access camera!');
@@ -124,6 +129,46 @@ export default function MainScreen(props: any) {
     }
   };
 
+  const handleOpenNoteDialog = () => {
+    setDialogMode('note');
+    setDialogVisible(true);
+    setPendingNoteTitle('');
+    setPendingNoteContent('');
+    setSavingNote(false);
+  };
+
+  const handleSaveNote = async () => {
+    if (!pendingNoteTitle.trim() || !pendingNoteContent.trim()) return;
+    setSavingNote(true);
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        Alert.alert('Save failed', 'User not authenticated');
+        return;
+      }
+      const { error: insertError } = await supabase.from('notes').insert([
+        {
+          user_id: user.id,
+          title: pendingNoteTitle,
+          content: pendingNoteContent,
+        },
+      ]);
+      if (insertError) {
+        Alert.alert('DB insert failed', insertError.message);
+      } else {
+        Alert.alert('Note saved!');
+        setDialogVisible(false);
+        setDialogMode(null);
+        setPendingNoteTitle('');
+        setPendingNoteContent('');
+      }
+    } catch (err: any) {
+      Alert.alert('Save failed', err.message || 'Unknown error');
+    } finally {
+      setSavingNote(false);
+    }
+  };
+
   useEffect(() => {
     const fetchPhotos = async () => {
       if (!dialogVisible) return;
@@ -185,9 +230,13 @@ export default function MainScreen(props: any) {
           setPendingTitle('');
           setPendingNote('');
           setPendingUpload(false);
+          setDialogMode(null);
+          setPendingNoteTitle('');
+          setPendingNoteContent('');
+          setSavingNote(false);
         }}
         headerProps={{
-          title: 'Image',
+          title: dialogMode === 'note' ? 'Note' : 'Image',
           style: { paddingHorizontal: 16 },
           rightActionFontSize: 15,
           titleStyle: { color: colors.primary },
@@ -198,10 +247,14 @@ export default function MainScreen(props: any) {
             setPendingTitle('');
             setPendingNote('');
             setPendingUpload(false);
+            setDialogMode(null);
+            setPendingNoteTitle('');
+            setPendingNoteContent('');
+            setSavingNote(false);
           },
         }}
       >
-        {pendingImageUri ? (
+        {dialogMode === 'photo' && pendingImageUri ? (
           <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
             <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1, width: '100%' }}>
               <TextInput
@@ -271,6 +324,72 @@ export default function MainScreen(props: any) {
               </TouchableOpacity>
             </View>
           </TouchableWithoutFeedback>
+        ) : dialogMode === 'note' ? (
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
+            <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1, width: '100%' }}>
+              <TextInput
+                placeholder="Note title"
+                value={pendingNoteTitle}
+                onChangeText={setPendingNoteTitle}
+                style={{
+                  width: 300,
+                  minHeight: 40,
+                  borderWidth: 1,
+                  borderColor: '#ccc',
+                  borderRadius: 10,
+                  paddingHorizontal: 12,
+                  marginBottom: 16,
+                  fontSize: 16,
+                  backgroundColor: '#fafafa',
+                }}
+                editable={!savingNote}
+              />
+              <TextInput
+                placeholder="Note content"
+                value={pendingNoteContent}
+                onChangeText={setPendingNoteContent}
+                multiline={true}
+                style={{
+                  width: 300,
+                  minHeight: 80,
+                  borderWidth: 1,
+                  borderColor: '#ccc',
+                  borderRadius: 10,
+                  paddingHorizontal: 12,
+                  marginBottom: 16,
+                  fontSize: 16,
+                  backgroundColor: '#fafafa',
+                }}
+                editable={!savingNote}
+              />
+              <TouchableOpacity
+                onPress={handleSaveNote}
+                style={{
+                  backgroundColor: '#d42a02',
+                  borderRadius: 100,
+                  paddingVertical: 12,
+                  paddingHorizontal: 32,
+                  marginBottom: 8,
+                  marginTop: 20,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 3, height: 3 },
+                  shadowOpacity: 0.2,
+                  shadowRadius: 6,
+                  elevation: 8,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  opacity: pendingNoteTitle.trim() && pendingNoteContent.trim() ? 1 : 0.5,
+                }}
+                disabled={savingNote || !pendingNoteTitle.trim() || !pendingNoteContent.trim()}
+              >
+                {savingNote ? (
+                  <ActivityIndicator size="small" color={'#fff'} />
+                ) : (
+                  <Text style={{ color: 'white', fontSize: 16 }}>Save Note</Text>
+                )}
+              </TouchableOpacity>
+            </View>
+          </TouchableWithoutFeedback>
         ) : (
           <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1 }}>
             <Text>No photo selected.</Text>
@@ -281,7 +400,7 @@ export default function MainScreen(props: any) {
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 200, width: '86%' }}>
         {selectedProject &&
           [
-            { icon: 'document-text', onPress: undefined, disabled: false },
+            { icon: 'document-text', onPress: handleOpenNoteDialog, disabled: false },
             { icon: 'camera', onPress: handlePickAndUpload, disabled: uploading, isUploading: true },
             // { icon: 'mic', onPress: undefined, disabled: false },
           ].map((item, idx) => (

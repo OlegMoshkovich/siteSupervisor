@@ -41,7 +41,7 @@ const DropDown: React.FC<DropDownProps> = ({ items, selectedItem, setSelectedIte
           backgroundColor: 'white',
           width: '70%',
         }}>
-          <Text style={{ height: 40, lineHeight: 40, color: selectedItem ? '#222' : '#888' }}>
+          <Text style={{ height: 40, lineHeight: 40, color: selectedItem ? '#222' : '#888', fontSize: 16 }}>
             {selectedItem || placeholder}
           </Text>
           <Ionicons

@@ -37,7 +37,7 @@ const DialogHeader: React.FC<DialogHeaderProps> = ({
   headerAsButton,
   onHeaderPress,
   bottomBorder = true,
-  titleFontSize = 20,
+  titleFontSize = 18,
   rightActionFontSize = 18,
 }) => {
   return (
@@ -138,7 +138,7 @@ const styles = StyleSheet.create({
   },
   title: {
     color: "#fff",
-    fontSize: 24,
+    fontSize: 20,
     fontWeight: "400",
     textAlign: "left",
     flexShrink: 1,
