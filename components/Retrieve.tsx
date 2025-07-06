@@ -237,7 +237,26 @@ export default function RetrieveScreen(props: any) {
       console.log('OpenAI Fetch Error:', err);
       summary = 'Summary could not be generated.';
     }
-    Alert.alert('Report Summary', summary);
+
+    // Save the summary to Supabase
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      const reportTitle = 'Site Report ' + new Date().toLocaleString();
+      const { error } = await supabase.from('summaries').insert([
+        {
+          user_id: user?.id,
+          title: reportTitle,
+          summary,
+        },
+      ]);
+      if (error) {
+        Alert.alert('Error', 'Could not save summary: ' + error.message);
+      } else {
+        Alert.alert('Report Summary', summary + '\n\n(Summary saved to reports)');
+      }
+    } catch (err) {
+      Alert.alert('Error', 'Could not save summary.');
+    }
   };
 
   return (
