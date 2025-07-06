@@ -3,11 +3,9 @@ import {
   View,
   Text,
   TouchableOpacity,
-  TextInput,
   ScrollView,
   Dimensions,
   Alert,
-  ActivityIndicator,
   Image,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -46,6 +44,7 @@ export default function RetrieveScreen(props: any) {
   const [photos, setPhotos] = useState<PhotoWithUrl[]>([]);
   const [photosLoading, setPhotosLoading] = useState(false);
   const [checkedPhotos, setCheckedPhotos] = useState<{ [id: string]: boolean }>({});
+  const [PhotoAccordionOpen, setPhotoAccordionOpen] = useState(false);
 
   const handlePickAndUpload = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -159,8 +158,6 @@ export default function RetrieveScreen(props: any) {
           placeholder="Select a project"
         />
       </View>
-
-
       {selectedProject && (
         <View style={{ marginTop: 220}}>
           <DropDown
@@ -190,37 +187,99 @@ export default function RetrieveScreen(props: any) {
         onClose={() => setDialogVisible(false)}
       >
         {photosLoading ? (
-          
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          {/* <ActivityIndicator size="large" color={'#d42a02'} /> */}
-          <Loader />
+            {/* <ActivityIndicator size="large" color={'#d42a02'} /> */}
+            <Loader />
           </View>
         ) : photos.length === 0 ? (
           <Text style={{ alignSelf: 'center', marginTop: 0 }}>No photos available.</Text>
         ) : (
           <>
-            <ScrollView contentContainerStyle={{ padding: 0 }}>
+            {/* Accordion for all photos */}
+            <TouchableOpacity
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                paddingHorizontal: 20,
+                paddingVertical: 10,
+                borderWidth: 1,
+                borderColor: colors.primary,
+                borderRadius: 20,
+                marginBottom: 12,
+                marginTop: 4,
+                width: '80%',
+                alignSelf: 'center',
+              }}
+              onPress={() => setPhotoAccordionOpen((open) => !open)}
+            >
+              <Text style={{ fontSize: 16, color: colors.primary }}>
+                Photos
+              </Text>
+              <Ionicons
+                name={PhotoAccordionOpen ? 'chevron-up' : 'chevron-down'}
+                size={24}
+                color={colors.primary}
+              />
+            </TouchableOpacity>
+
+            {PhotoAccordionOpen && (
+              <ScrollView contentContainerStyle={{ padding: 0 }}>
               {photos.map((photo) =>
                 photo.dataUrl ? (
-                  <View key={photo.id} style={{ marginBottom: 24, alignItems: 'center' }}>
+                  <View
+                    key={photo.id}
+                    style={{ marginBottom: 24, alignItems: 'center' }}
+                  >
                     <Image
                       source={{ uri: photo.dataUrl }}
-                      style={{ width: 300, height: 300, marginBottom: 10, borderRadius: 8, alignSelf: 'center' }}
+                      style={{
+                        width: 300,
+                        height: 300,
+                        marginBottom: 10,
+                        borderRadius: 8,
+                        alignSelf: 'center',
+                      }}
                     />
                     {photo.title ? (
-                      <View style={{ flexDirection: 'row', alignItems: 'center', width: 300, alignSelf: 'center', marginBottom: 4 }}>
-                        <Text style={{ flex: 1, fontWeight: 'bold', fontSize: 18, color: '#222' }}>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          alignItems: 'center',
+                          width: 300,
+                          alignSelf: 'center',
+                          marginBottom: 4,
+                        }}
+                      >
+                        <Text
+                          style={{
+                            flex: 1,
+                            fontWeight: 'bold',
+                            fontSize: 18,
+                            color: '#222',
+                          }}
+                        >
                           {photo.title}
                         </Text>
                         <CheckBox
                           checked={!!checkedPhotos[photo.id]}
-                          onChange={(checked) => setCheckedPhotos((prev) => ({ ...prev, [photo.id]: checked }))}
+                          onChange={(checked) =>
+                            setCheckedPhotos((prev) => ({ ...prev, [photo.id]: checked }))
+                          }
                           size={32}
                         />
                       </View>
                     ) : null}
                     {photo.note ? (
-                      <Text style={{ width: 300,fontSize: 16, color: '#444', alignSelf: 'center', marginBottom: 4 }}>
+                      <Text
+                        style={{
+                          width: 300,
+                          fontSize: 16,
+                          color: '#444',
+                          alignSelf: 'center',
+                          marginBottom: 4,
+                        }}
+                      >
                         {photo.note}
                       </Text>
                     ) : null}
@@ -228,30 +287,46 @@ export default function RetrieveScreen(props: any) {
                 ) : null
               )}
             </ScrollView>
-            {(
-              <View style={{ alignItems: 'center', marginVertical: 16 }}>
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: '#d42a02',
-                    borderRadius: 100,
-                    paddingVertical: 10,
-                    paddingHorizontal: 32,
-                    shadowColor: '#000',
-                    shadowOffset: { width: 3, height: 3 },
-                    shadowOpacity: 0.2,
-                    shadowRadius: 6,
-                    elevation: 8,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    opacity: Object.values(checkedPhotos).some(Boolean) ? 1 : 0.5,
-                  }}
-                  onPress={() => {/* handle action for selected photos here */}}
-                  disabled={!Object.values(checkedPhotos).some(Boolean)}
-                >
-                  <Text style={{ color: 'white', fontSize: 16 }}>Generate Report</Text>
-                </TouchableOpacity>
-              </View>
             )}
+
+           
+
+            {/* Generate Report button fixed at the bottom of the dialog */}
+            <View
+              style={{
+                position: 'absolute',
+                left: 0,
+                right: 0,
+                bottom: 0,
+                alignItems: 'center',
+                paddingBottom: 2,
+                paddingTop: 16,
+                backgroundColor: 'white',
+              }}
+            >
+              <TouchableOpacity
+                style={{
+                  backgroundColor: '#d42a02',
+                  borderRadius: 100,
+                  paddingVertical: 10,
+                  paddingHorizontal: 32,
+                  shadowColor: '#000',
+                  shadowOffset: { width: 3, height: 3 },
+                  shadowOpacity: 0.2,
+                  shadowRadius: 6,
+                  elevation: 8,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  opacity: Object.values(checkedPhotos).some(Boolean) ? 1 : 0.5,
+                }}
+                onPress={() => {
+                  /* handle action for selected photos here */
+                }}
+                disabled={!Object.values(checkedPhotos).some(Boolean)}
+              >
+                <Text style={{ color: 'white', fontSize: 16 }}>Generate Report</Text>
+              </TouchableOpacity>
+            </View>
           </>
         )}
       </DynamicDialog>
