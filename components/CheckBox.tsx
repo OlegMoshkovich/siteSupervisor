@@ -8,25 +8,27 @@ interface CheckBoxProps {
   size?: number;
 }
 
-const CheckBox: React.FC<CheckBoxProps> = ({ checked, onChange, size = 40 }) => {
+const CheckBox: React.FC<CheckBoxProps> = ({ checked, onChange, size = 20 }) => {
+  const HIT_SLOP = 20;
   return (
     <TouchableOpacity
       activeOpacity={0.8}
       onPress={() => onChange(!checked)}
-      style={[
-        styles.container,
-        {
+      hitSlop={{ top: HIT_SLOP, bottom: HIT_SLOP, left: HIT_SLOP, right: HIT_SLOP }}
+      style={{ justifyContent: 'center', alignItems: 'center' }}
+    >
+      <View
+        style={{
           width: size,
           height: size,
           borderRadius: size / 2,
           backgroundColor: checked ? '#d42a02' : 'transparent',
           borderWidth: 2,
           borderColor: '#d42a02',
-         
-        },
-      ]}
-    >
-      <View style={[styles.checkmark, { borderRadius: size / 2, padding: size * 0.16 }]}> 
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
         {checked && (
           <Ionicons name="checkmark" size={size * 0.6} color="#fff" style={{ alignSelf: 'center' }} />
         )}

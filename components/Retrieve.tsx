@@ -342,7 +342,7 @@ export default function RetrieveScreen(props: any) {
                   >
                     <Ionicons
                       name={item.icon as any}
-                      size={24}
+                      size={20}
                       color={
                         (item.icon === 'document-text' && activeTab === 'notes') ||
                         (item.icon === 'camera' && activeTab === 'photos') ||
@@ -401,7 +401,7 @@ export default function RetrieveScreen(props: any) {
                               onChange={(checked) =>
                                 setCheckedPhotos((prev) => ({ ...prev, [photo.id]: checked }))
                               }
-                              size={28}
+                              size={20}
                             />
                           </View>
                         ) : null}
@@ -453,6 +453,9 @@ export default function RetrieveScreen(props: any) {
                               fontWeight: 'bold',
                               fontSize: 18,
                               color: '#222',
+                         
+                             
+                              paddingRight: 20,
                             }}
                           >
                             {note.title}
@@ -462,7 +465,7 @@ export default function RetrieveScreen(props: any) {
                             onChange={(checked) =>
                               setCheckedNotes((prev) => ({ ...prev, [note.id]: checked }))
                             }
-                            size={28}
+                            size={20}
                           />
                         </View>
                         <Text
