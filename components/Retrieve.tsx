@@ -48,6 +48,7 @@ export default function RetrieveScreen(props: any) {
   const [NotesAccordionOpen, setNotesAccordionOpen] = useState(false);
   const [notes, setNotes] = useState<any[]>([]);
   const [notesLoading, setNotesLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<'photos' | 'notes'>('photos');
 
   const handlePickAndUpload = async () => {
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
@@ -152,7 +153,7 @@ export default function RetrieveScreen(props: any) {
   }, [dialogVisible]);
 
   useEffect(() => {
-    if (!NotesAccordionOpen) return;
+    if (activeTab !== 'notes') return;
     setNotesLoading(true);
     setNotes([]);
     const fetchNotes = async () => {
@@ -165,7 +166,7 @@ export default function RetrieveScreen(props: any) {
       setNotesLoading(false);
     };
     fetchNotes();
-  }, [NotesAccordionOpen]);
+  }, [activeTab]);
 
   return (
     <View style={{ flex: 1, alignItems: 'center', backgroundColor: 'white', paddingTop: 80 }}>
@@ -215,40 +216,39 @@ export default function RetrieveScreen(props: any) {
         ) : (
           <>
             <View style={{ width: '100%', height: '70%', justifyContent: 'flex-start' }}>
-              <TouchableOpacity
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  paddingHorizontal: 20,
-                  paddingVertical: 10,
-                  borderWidth: 1,
-                  borderColor: colors.primary,
-                  borderRadius: 20,
-                  marginBottom: 12,
-                  marginTop: 4,
-                  width: '80%',
-                  alignSelf: 'center',
-                }}
-                onPress={() => {
-                  setPhotoAccordionOpen((open) => {
-                    const newOpen = !open;
-                    if (newOpen) setNotesAccordionOpen(false);
-                    return newOpen;
-                  });
-                }}
-              >
-                <Text style={{ fontSize: 16, color: colors.primary }}>
-                  Photos
-                </Text>
-                <Ionicons
-                  name={PhotoAccordionOpen ? 'chevron-up' : 'chevron-down'}
-                  size={24}
-                  color={colors.primary}
-                />
-              </TouchableOpacity>
-              {PhotoAccordionOpen && (
-                <ScrollView style={{ maxHeight: 600, height: 600 }} contentContainerStyle={{ padding: 0 }}>
+              {/* Tab Bar */}
+              <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 12 }}>
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    paddingVertical: 12,
+                    borderBottomWidth: 3,
+                    borderBottomColor: activeTab === 'photos' ? colors.primary : 'transparent',
+                    backgroundColor: activeTab === 'photos' ? '#fff4f0' : 'white',
+                  }}
+                  onPress={() => setActiveTab('photos')}
+                >
+                  <Text style={{ fontSize: 16, color: activeTab === 'photos' ? colors.primary : '#888' }}>Photos</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{
+                    flex: 1,
+                    alignItems: 'center',
+                    paddingVertical: 12,
+                    borderBottomWidth: 3,
+                    borderBottomColor: activeTab === 'notes' ? colors.primary : 'transparent',
+                    backgroundColor: activeTab === 'notes' ? '#fff4f0' : 'white',
+                  }}
+                  onPress={() => setActiveTab('notes')}
+                >
+                  <Text style={{ fontSize: 16, color: activeTab === 'notes' ? colors.primary : '#888' }}>Notes</Text>
+                </TouchableOpacity>
+              </View>
+
+              {/* Tab Content */}
+              {activeTab === 'photos' && (
+                <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 0 }}>
                   {photos.map((photo) =>
                     photo.dataUrl ? (
                       <View
@@ -312,41 +312,8 @@ export default function RetrieveScreen(props: any) {
                   )}
                 </ScrollView>
               )}
-
-              <TouchableOpacity
-                style={{
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  justifyContent: 'space-between',
-                  paddingHorizontal: 20,
-                  paddingVertical: 10,
-                  borderWidth: 1,
-                  borderColor: colors.primary,
-                  borderRadius: 20,
-                  marginBottom: 12,
-                  marginTop: 4,
-                  width: '80%',
-                  alignSelf: 'center',
-                }}
-                onPress={() => {
-                  setNotesAccordionOpen((open) => {
-                    const newOpen = !open;
-                    if (newOpen) setPhotoAccordionOpen(false);
-                    return newOpen;
-                  });
-                }}
-              >
-                <Text style={{ fontSize: 16, color: colors.primary }}>
-                  Notes
-                </Text>
-                <Ionicons
-                  name={NotesAccordionOpen ? 'chevron-up' : 'chevron-down'}
-                  size={24}
-                  color={colors.primary}
-                />
-              </TouchableOpacity>
-              {NotesAccordionOpen && (
-                <ScrollView style={{ height: 300, borderWidth: 1, borderColor: 'red' }} contentContainerStyle={{ padding: 0 }}>
+              {activeTab === 'notes' && (
+                <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: 0 }}>
                   {notesLoading ? (
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                       {/* <ActivityIndicator size="large" color={'#d42a02'} /> */}
