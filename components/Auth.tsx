@@ -52,7 +52,7 @@ export default function Auth() {
       <View style={{ position: 'absolute', top: -30, left: 0, width: '100%', alignItems: 'center', zIndex: 1 }} pointerEvents="none">
         <Image
           source={require('../assets/cloneit.png')}
-          style={{ width: width , height: 60, resizeMode: 'contain' }}
+          style={{ width: width , height: 50, resizeMode: 'contain' }}
         />
                
       </View>
@@ -63,7 +63,7 @@ export default function Auth() {
           value={email}
           placeholder="Email"
           autoCapitalize={'none'}
-          style={{  fontSize: 20, borderColor: colors.primary, paddingVertical: 12, backgroundColor: 'white' }}
+          style={{  fontSize: 16, borderColor: colors.primary, paddingVertical: 12, backgroundColor: 'white' }}
           labelStyle={{  display: 'none' }}
         />
       </View>
@@ -76,12 +76,14 @@ export default function Auth() {
           placeholder="Password"
           autoCapitalize={'none'}
           labelStyle={{  display: 'none' }}
-          style={{  fontSize: 20, borderColor: colors.primary, paddingVertical: 12, backgroundColor: 'white' }}
+          style={{  fontSize: 16, borderColor: colors.primary, paddingVertical: 12, backgroundColor: 'white' }}
         />
       </View>
       <View style={[styles.verticallySpaced, {width: '60%', alignSelf: 'center', marginTop: 20}]}>
         <TouchableOpacity
-            style={[styles.customButton,{backgroundColor: '#d42a02', 
+            style={[styles.customButton,
+          {
+            backgroundColor: colors.secondary,
             shadowColor: '#000',
             shadowOffset: { width: 3, height: 3 },
             shadowOpacity: 0.2,
@@ -98,7 +100,7 @@ export default function Auth() {
       </View>
       <View style={styles.verticallySpaced}>
         <TouchableOpacity
-          style={[styles.customButton, { width: '60%', alignSelf: 'center',  borderColor: colors.primary, marginTop: 220}]}
+          style={[styles.customButton, { width: '60%', alignSelf: 'center',  borderColor: colors.primary, marginTop: 120}]}
           disabled={loading}
           onPress={signUpWithEmail}
         >
@@ -133,7 +135,6 @@ const styles = StyleSheet.create({
   },
   buttonText: {
     color: '#fff',
-    fontWeight: 'bold',
     fontSize: 16,
   },
 })

@@ -134,7 +134,7 @@ export default function Account({ session }: { session: Session }) {
             borderRadius: 1000,
             // backgroundColor: '#545251',
             borderWidth: .5,
-            borderColor: colors.primary,
+            borderColor: colors.secondary,
             height: 40,
             width: '60%',
             alignSelf: 'center',

@@ -22,7 +22,7 @@ const DropDown: React.FC<DropDownProps> = ({ items, selectedItem, setSelectedIte
         style={{
           shadowColor: '#000',
           shadowOffset: { width: 2, height: 2 },
-          shadowOpacity: 0.1,
+          shadowOpacity: 0.2,
           shadowRadius: 6,
           elevation: 8,
           justifyContent: 'center',
@@ -31,9 +31,9 @@ const DropDown: React.FC<DropDownProps> = ({ items, selectedItem, setSelectedIte
   
       >
         <View style={{
-          borderWidth: .5,
+          // borderWidth: 1.0,
           borderColor: colors.primary,
-          borderRadius: 18,
+          borderRadius: 100,
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',
