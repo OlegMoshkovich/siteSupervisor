@@ -192,7 +192,6 @@ export default function MainScreen(props: any) {
             const fr = new FileReader();
             return await new Promise<PhotoWithUrl>((resolve) => {
               fr.onload = () => {
-                console.log('Loaded dataUrl for', photo.url);
                 resolve({ ...photo, dataUrl: fr.result as string });
               };
               fr.readAsDataURL(fileData);
@@ -340,7 +339,7 @@ export default function MainScreen(props: any) {
                   paddingHorizontal: 12,
                   marginBottom: 16,
                   fontSize: 16,
-                  backgroundColor: '#fafafa',
+                //   backgroundColor: '#fafafa',
                 }}
                 editable={!savingNote}
               />
@@ -358,7 +357,7 @@ export default function MainScreen(props: any) {
                   paddingHorizontal: 12,
                   marginBottom: 16,
                   fontSize: 16,
-                  backgroundColor: '#fafafa',
+                //   backgroundColor: '#fafafa',
                 }}
                 editable={!savingNote}
               />

@@ -138,7 +138,6 @@ export default function RetrieveScreen(props: any) {
             const fr = new FileReader();
             return await new Promise<PhotoWithUrl>((resolve) => {
               fr.onload = () => {
-                console.log('Loaded dataUrl for', photo.url);
                 resolve({ ...photo, dataUrl: fr.result as string });
               };
               fr.readAsDataURL(fileData);
@@ -314,7 +313,7 @@ export default function RetrieveScreen(props: any) {
           <>
             <View style={{ width: '100%', justifyContent: 'flex-start',   }}>
               {/* Action Buttons */}
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginBottom: 10, width: '90%', alignSelf: 'center',  borderRadius: 20, paddingBottom: 0 }}>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginBottom: 6, marginTop: 6, width: '90%', alignSelf: 'center',  borderRadius: 20, paddingBottom: 0 }}>
                 {[
                   { icon: 'document-text', onPress: () => { setActiveTab('notes'); }, disabled: false, label: 'Notes' },
                   { icon: 'camera', onPress: () => { setActiveTab('photos'); }, disabled: uploading, isUploading: true, label: 'Photos' },
@@ -483,7 +482,7 @@ export default function RetrieveScreen(props: any) {
                 </ScrollView>
               )}
               {activeTab === 'summaries' && (
-                <ScrollView contentContainerStyle={{ paddingBottom: 100 }}>
+                <ScrollView contentContainerStyle={{ paddingBottom: 30 }}>
                   {summariesLoading ? (
                     <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
                       <Loader />
@@ -504,39 +503,41 @@ export default function RetrieveScreen(props: any) {
             </View>
 
             {/* Generate Report button fixed at the bottom of the dialog */}
-            <View
-              style={{
-                position: 'absolute',
-                left: 0,
-                right: 0,
-                bottom: 0,
-                alignItems: 'center',
-                paddingBottom: 2,
-                paddingTop: 16,
-                backgroundColor: 'white',
-              }}
-            >
-              <TouchableOpacity
+            {(activeTab === 'photos' || activeTab === 'notes') && (
+              <View
                 style={{
-                  backgroundColor: '#d42a02',
-                  borderRadius: 100,
-                  paddingVertical: 10,
-                  paddingHorizontal: 28,
-                  shadowColor: '#000',
-                  shadowOffset: { width: 3, height: 3 },
-                  shadowOpacity: 0.2,
-                  shadowRadius: 6,
-                  elevation: 8,
-                  justifyContent: 'center',
+                  position: 'absolute',
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
                   alignItems: 'center',
-                  opacity: Object.values(checkedPhotos).some(Boolean) || Object.values(checkedNotes).some(Boolean) ? 1 : 0.5,
+                  paddingBottom: 2,
+                  paddingTop: 16,
+                  backgroundColor: 'white',
                 }}
-                onPress={handleGenerateReport}
-                disabled={!(Object.values(checkedPhotos).some(Boolean) || Object.values(checkedNotes).some(Boolean))}
               >
-                <Text style={{ color: 'white', fontSize: 16 }}>Generate Report</Text>
-              </TouchableOpacity>
-            </View>
+                <TouchableOpacity
+                  style={{
+                    backgroundColor: '#d42a02',
+                    borderRadius: 100,
+                    paddingVertical: 10,
+                    paddingHorizontal: 28,
+                    shadowColor: '#000',
+                    shadowOffset: { width: 3, height: 3 },
+                    shadowOpacity: 0.2,
+                    shadowRadius: 6,
+                    elevation: 8,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    opacity: Object.values(checkedPhotos).some(Boolean) || Object.values(checkedNotes).some(Boolean) ? 1 : 0.5,
+                  }}
+                  onPress={handleGenerateReport}
+                  disabled={!(Object.values(checkedPhotos).some(Boolean) || Object.values(checkedNotes).some(Boolean))}
+                >
+                  <Text style={{ color: 'white', fontSize: 16 }}>Generate Report</Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
             {/* Loader overlay while generating report */}
             {reportLoading && (
@@ -546,13 +547,13 @@ export default function RetrieveScreen(props: any) {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                backgroundColor: 'rgba(255,255,255,0.6)',
+                backgroundColor: 'rgba(255,255,255,0.8)',
                 justifyContent: 'center',
                 alignItems: 'center',
                 zIndex: 9999,
               }}>
                 <Loader />
-                <Text style={{ marginTop: 16, fontSize: 16, color: colors.primary }}>Generating report...</Text>
+                {/* <Text style={{ marginTop: 16, fontSize: 16, color: colors.primary }}>Generating report...</Text> */}
               </View>
             )}
           </>
