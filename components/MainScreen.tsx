@@ -285,26 +285,21 @@ export default function MainScreen(props: any) {
                   borderColor: '#ccc',
                   borderRadius: 10,
                   paddingHorizontal: 12,
-                  marginBottom: 16,
+                  marginBottom: 10,
                   fontSize: 16,
                   backgroundColor: '#fafafa',
                 }}
                 editable={!uploading}
               />
-              <Image
-                source={{ uri: pendingImageUri }}
-                style={{ width: 300, height: 300, borderRadius: 12, marginBottom: 16 }}
-                resizeMode="cover"
-              />
-              <TouchableOpacity
+               <TouchableOpacity
                 onPress={handleUpload}
                 style={{
-                  backgroundColor: '#d42a02',
+                  backgroundColor: colors.secondary,
                   borderRadius: 100,
                   paddingVertical: 12,
                   paddingHorizontal: 32,
                   marginBottom: 8,
-                  marginTop: 20,
+                  marginTop: 0,
                   shadowColor: '#000',
                   shadowOffset: { width: 3, height: 3 },
                   shadowOpacity: 0.2,
@@ -321,6 +316,12 @@ export default function MainScreen(props: any) {
                   <Text style={{ color: 'white', fontSize: 16 }}>Upload</Text>
                 )}
               </TouchableOpacity>
+              <Image
+                source={{ uri: pendingImageUri }}
+                style={{ width: 300, height: 300, borderRadius: 12, marginBottom: 16 }}
+                resizeMode="cover"
+              />
+             
             </View>
           </TouchableWithoutFeedback>
         ) : dialogMode === 'note' ? (
