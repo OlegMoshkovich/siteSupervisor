@@ -1,8 +1,9 @@
 import React, { useRef, useEffect } from 'react';
 import { View, Animated, StyleSheet } from 'react-native';
+import colors from './colors';
 
 const DOT_SIZE = 16;
-const DOT_COLOR = '#d42a02';
+const DOT_COLOR = colors.secondary;
 const CONTAINER_WIDTH = 60;
 
 const Loader: React.FC = () => {

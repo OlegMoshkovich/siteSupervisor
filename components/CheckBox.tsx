@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import colors from './colors';
 
 interface CheckBoxProps {
   checked: boolean;
@@ -22,9 +23,9 @@ const CheckBox: React.FC<CheckBoxProps> = ({ checked, onChange, size = 20 }) => 
           width: size,
           height: size,
           borderRadius: size / 2,
-          backgroundColor: checked ? '#d42a02' : 'transparent',
+          backgroundColor: checked ? colors.secondary : 'transparent',
           borderWidth: 2,
-          borderColor: '#d42a02',
+          borderColor: colors.secondary,
           justifyContent: 'center',
           alignItems: 'center',
         }}

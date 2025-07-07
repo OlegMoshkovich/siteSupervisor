@@ -364,7 +364,7 @@ export default function MainScreen(props: any) {
               <TouchableOpacity
                 onPress={handleSaveNote}
                 style={{
-                  backgroundColor: '#d42a02',
+                  backgroundColor: colors.secondary,
                   borderRadius: 100,
                   paddingVertical: 12,
                   paddingHorizontal: 32,

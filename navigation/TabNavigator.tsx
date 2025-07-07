@@ -5,6 +5,7 @@ import ProfileScreen from '../components/ProfileScreen';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import { Session } from '@supabase/supabase-js';
 import RetrieveScreen from '../components/Retrieve';
+import colors from '../components/colors';
 
 const Tab = createBottomTabNavigator();
 
@@ -13,7 +14,7 @@ export default function TabNavigator({ session }: { session: Session }) {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: '#d42a02',
+        tabBarActiveTintColor: colors.secondary,
         tabBarIcon: ({ color, size }) => {
           let iconName = 'home';
           if (route.name === 'Add') iconName = 'add-circle';

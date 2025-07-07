@@ -303,7 +303,7 @@ export default function RetrieveScreen(props: any) {
         onClose={() => setDialogVisible(false)}
       >
         {photosLoading ? (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
             {/* <ActivityIndicator size="large" color={'#d42a02'} /> */}
             <Loader />
           </View>
@@ -426,7 +426,7 @@ export default function RetrieveScreen(props: any) {
               {activeTab === 'notes' && (
                 <ScrollView contentContainerStyle={{  paddingBottom: 100 }}>
                   {notesLoading ? (
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 100 }}>
                       {/* <ActivityIndicator size="large" color={'#d42a02'} /> */}
                       <Loader />
                     </View>
@@ -487,7 +487,7 @@ export default function RetrieveScreen(props: any) {
               {activeTab === 'summaries' && (
                 <ScrollView contentContainerStyle={{ paddingBottom: 30 }}>
                   {summariesLoading ? (
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 100 }}>
                       <Loader />
                     </View>
                   ) : summaries.length === 0 ? (
@@ -521,7 +521,7 @@ export default function RetrieveScreen(props: any) {
               >
                 <TouchableOpacity
                   style={{
-                    backgroundColor: '#d42a02',
+                    backgroundColor: colors.secondary,
                     borderRadius: 100,
                     paddingVertical: 10,
                     paddingHorizontal: 28,
