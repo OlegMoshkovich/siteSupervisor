@@ -3,6 +3,7 @@ import { supabase } from '../lib/supabase'
 import { StyleSheet, View, Alert, Image, Button, TouchableOpacity, Text, ActivityIndicator } from 'react-native'
 import * as ImagePicker from 'expo-image-picker'
 import Ionicons from 'react-native-vector-icons/Ionicons';
+import colors from './colors';
 
 interface Props {
   size: number
@@ -135,7 +136,7 @@ export default function Avatar({ url, size = 150, onUpload }: Props) {
             {showUserIcon ? (
               <Ionicons name="person-circle-outline" size={size * 0.7} color="#ccc" />
             ) : (
-              <ActivityIndicator size="small" color={'#d42a02'} />
+              <ActivityIndicator size="small" color=  {colors.secondary} />
             )}
           </View>
         )}
