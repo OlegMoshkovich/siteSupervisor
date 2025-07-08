@@ -5,10 +5,8 @@ import colors from './colors';
 interface PhotoUploadDialogProps {
   visible: boolean;
   imageUri: string | null;
-  title: string;
   note: string;
   uploading: boolean;
-  onTitleChange: (text: string) => void;
   onNoteChange: (text: string) => void;
   onUpload: () => void;
   onClose: () => void;
@@ -17,10 +15,8 @@ interface PhotoUploadDialogProps {
 const PhotoUploadDialog: React.FC<PhotoUploadDialogProps> = ({
   visible,
   imageUri,
-  title,
   note,
   uploading,
-  onTitleChange,
   onNoteChange,
   onUpload,
   onClose,
@@ -29,23 +25,6 @@ const PhotoUploadDialog: React.FC<PhotoUploadDialogProps> = ({
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
       <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1, width: '100%' }}>
-        <TextInput
-          placeholder="Add a title (optional)"
-          value={title}
-          onChangeText={onTitleChange}
-          style={{
-            width: 300,
-            minHeight: 40,
-            borderWidth: 1,
-            borderColor: '#ccc',
-            borderRadius: 10,
-            paddingHorizontal: 12,
-            marginBottom: 16,
-            fontSize: 16,
-            backgroundColor: '#fafafa',
-          }}
-          editable={!uploading}
-        />
         <TextInput
           placeholder="Add a note (optional)"
           value={note}
@@ -58,7 +37,7 @@ const PhotoUploadDialog: React.FC<PhotoUploadDialogProps> = ({
             borderColor: '#ccc',
             borderRadius: 10,
             paddingHorizontal: 12,
-            marginBottom: 10,
+            marginBottom: 16,
             fontSize: 16,
             backgroundColor: '#fafafa',
           }}

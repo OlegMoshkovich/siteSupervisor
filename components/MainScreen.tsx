@@ -306,10 +306,8 @@ export default function MainScreen(props: any) {
           <PhotoUploadDialog
             visible={dialogVisible && dialogMode === 'photo'}
             imageUri={pendingImageUri}
-            title={pendingTitle}
             note={pendingNote}
             uploading={uploading}
-            onTitleChange={setPendingTitle}
             onNoteChange={setPendingNote}
             onUpload={handleUpload}
             onClose={() => setDialogVisible(false)}

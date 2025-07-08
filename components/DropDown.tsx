@@ -20,20 +20,23 @@ const DropDown: React.FC<DropDownProps> = ({ items, selectedItem, setSelectedIte
         activeOpacity={0.8}
         onPress={() => setShowDropdown(true)}
         style={{
-          shadowColor: '#000',
-          shadowOffset: { width: 2, height: 2 },
-          shadowOpacity: 0.2,
-          shadowRadius: 6,
-          elevation: 8,
+          // shadowColor: '#000',
+          // shadowOffset: { width: 2, height: 2 },
+          // shadowOpacity: 0.2,
+          // shadowRadius: 6,
+          // elevation: 8,
           justifyContent: 'center',
           alignItems: 'center',
+          borderRadius: 100,
         }}
   
       >
         <View style={{
-          // borderWidth: 1.0,
+          borderWidth: .5,
           borderColor: colors.primary,
           borderRadius: 100,
+          // height: 40,
+          lineHeight: 40,
           flexDirection: 'row',
           alignItems: 'center',
           justifyContent: 'space-between',

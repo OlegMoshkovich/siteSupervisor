@@ -48,17 +48,21 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ id, dataUrl, title, note, checked
           >
             {title}
           </Text>
-          <CheckBox
-            checked={checked}
-            onChange={onCheck}
-            size={20}
-          />
         </View>
       ) : null}
       {note ? (
-        <Text
+         <View
+         style={{
+           flexDirection: 'row',
+           alignItems: 'center',
+           width: 300,
+           alignSelf: 'center',
+           marginBottom: 4,
+         }}
+       >
+         <Text
           style={{
-            width: 300,
+            width: 280,
             fontSize: 16,
             color: '#444',
             alignSelf: 'center',
@@ -67,6 +71,12 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ id, dataUrl, title, note, checked
         >
           {note}
         </Text>
+         <CheckBox
+         checked={checked}
+         onChange={onCheck}
+         size={20}
+       />
+       </View>
       ) : null}
       {latitude && longitude ? (
         <Text
