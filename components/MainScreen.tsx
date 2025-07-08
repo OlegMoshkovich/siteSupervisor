@@ -99,6 +99,49 @@ export default function MainScreen(props: any) {
     }
   };
 
+  const handlePickCamera = async () => {
+    setDialogMode('photo');
+    // Request camera permission
+    const { status: cameraStatus } = await ImagePicker.requestCameraPermissionsAsync();
+    if (cameraStatus !== 'granted') {
+      Alert.alert('Permission required to access camera!');
+      return;
+    }
+
+    // Optionally, request media library permission if you want to save the photo
+    // const { status: mediaStatus } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+
+    const result = await ImagePicker.launchCameraAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      quality: 1,
+    });
+
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const image = result.assets[0];
+      setPendingImageUri(image.uri);
+      setDialogVisible(true);
+      setPendingTitle('');
+      setPendingNote('');
+      setPendingUpload(false);
+      // Get location permission and current location
+      try {
+        const { status: locStatus } = await Location.requestForegroundPermissionsAsync();
+        if (locStatus === 'granted') {
+          const location = await Location.getCurrentPositionAsync({});
+          setPhotoLocation({
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          });
+        } else {
+          setPhotoLocation(null);
+        }
+      } catch (e) {
+        setPhotoLocation(null);
+      }
+    }
+  };
+
   const handleUpload = async () => {
     if (!pendingImageUri) return;
     setUploading(true);
@@ -174,45 +217,6 @@ export default function MainScreen(props: any) {
     }
   };
 
-  const handleOpenNoteDialog = () => {
-    setDialogMode('note');
-    setDialogVisible(true);
-    setPendingNoteTitle('');
-    setPendingNoteContent('');
-    setSavingNote(false);
-  };
-
-  const handleSaveNote = async () => {
-    if (!pendingNoteTitle.trim() || !pendingNoteContent.trim()) return;
-    setSavingNote(true);
-    try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        Alert.alert('Save failed', 'User not authenticated');
-        return;
-      }
-      const { error: insertError } = await supabase.from('notes').insert([
-        {
-          user_id: user.id,
-          title: pendingNoteTitle,
-          content: pendingNoteContent,
-        },
-      ]);
-      if (insertError) {
-        Alert.alert('DB insert failed', insertError.message);
-      } else {
-        Alert.alert('Note saved!');
-        setDialogVisible(false);
-        setDialogMode(null);
-        setPendingNoteTitle('');
-        setPendingNoteContent('');
-      }
-    } catch (err: any) {
-      Alert.alert('Save failed', err.message || 'Unknown error');
-    } finally {
-      setSavingNote(false);
-    }
-  };
 
   useEffect(() => {
     const fetchPhotos = async () => {
@@ -330,8 +334,8 @@ export default function MainScreen(props: any) {
 
       <MainActionButtons
         buttons={[
-          // { icon: 'document-text', onPress: handleOpenNoteDialog, disabled: false },
-          { icon: 'camera', onPress: handlePickAndUpload, disabled: uploading },
+          { icon: 'add-outline', onPress: handlePickAndUpload, disabled: false },
+          { icon: 'camera', onPress: handlePickCamera, disabled: uploading },
         ]}
       />
     </View>
