@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  ScrollView,
   Alert,
 } from 'react-native';
 import { supabase } from '../lib/supabase';
@@ -10,7 +9,7 @@ import DropDown from './DropDown';
 import DynamicDialog from './DynamicDialog';
 import Loader from './Loader';
 import Constants from 'expo-constants';
-import { format } from 'date-fns';
+import { format, startOfDay, endOfDay, parse } from 'date-fns';
 import PhotoItem from './PhotoItem';
 import NoteItem from './NoteItem';
 import SummaryItem from './SummaryItem';
@@ -47,79 +46,6 @@ export default function RetrieveScreen(props: any) {
 
 
   useEffect(() => {
-    const fetchPhotos = async () => {
-      if (!dialogVisible) return;
-      setPhotosLoading(true);
-      setPhotos([]);
-
-      const { data, error } = await supabase.from('photos').select('*');
-      if (error) {
-        setPhotosLoading(false);
-        return;
-      }
-
-      const photosWithDataUrl: PhotoWithUrl[] = await Promise.all(
-        data.map(async (photo) => {
-          try {
-            const { data: fileData, error: fileError } = await supabase.storage.from('photos').download(photo.url);
-            if (fileError || !fileData) {
-              console.log('Download failed for', photo.url, fileError);
-              return { ...photo, dataUrl: null };
-            }
-            const fr = new FileReader();
-            return await new Promise<PhotoWithUrl>((resolve) => {
-              fr.onload = () => {
-                resolve({ ...photo, dataUrl: fr.result as string });
-              };
-              fr.readAsDataURL(fileData);
-            });
-          } catch (e) {
-            console.log('Exception for', photo.url, e);
-            return { ...photo, dataUrl: null };
-          }
-        })
-      );
-
-      setPhotos(photosWithDataUrl);
-      setPhotosLoading(false);
-    };
-
-    fetchPhotos();
-  }, [dialogVisible]);
-
-  useEffect(() => {
-    if (activeTab !== 'notes') return;
-    setNotesLoading(true);
-    setNotes([]);
-    const fetchNotes = async () => {
-      const { data, error } = await supabase.from('notes').select('*');
-      if (error) {
-        setNotesLoading(false);
-        return;
-      }
-      setNotes(data);
-      setNotesLoading(false);
-    };
-    fetchNotes();
-  }, [activeTab]);
-
-  useEffect(() => {
-    if (activeTab !== 'summaries') return;
-    setSummariesLoading(true);
-    setSummaries([]);
-    const fetchSummaries = async () => {
-      const { data, error } = await supabase.from('summaries').select('*').order('created_at', { ascending: false });
-      if (error) {
-        setSummariesLoading(false);
-        return;
-      }
-      setSummaries(data);
-      setSummariesLoading(false);
-    };
-    fetchSummaries();
-  }, [activeTab]);
-
-  useEffect(() => {
     const fetchDates = async () => {
       const tables = ['photos', 'notes', 'summaries'];
       let allDates: string[] = [];
@@ -141,6 +67,144 @@ export default function RetrieveScreen(props: any) {
     fetchDates();
   }, []);
 
+  // Helper to get date range for selectedDate
+  const getDateRange = (selectedDate: string) => {
+    if (!selectedDate) return {};
+    // Parse the formatted date string (e.g., 'June 2, 2025')
+    const date = parse(selectedDate, 'MMMM d, yyyy', new Date());
+    return {
+      from: startOfDay(date).toISOString(),
+      to: endOfDay(date).toISOString(),
+    };
+  };
+
+  useEffect(() => {
+    const { from, to } = getDateRange(selectedDate);
+    if (activeTab === 'summaries') {
+      const fetchSummaries = async () => {
+        setSummariesLoading(true);
+        setSummaries([]);
+        let query = supabase.from('summaries').select('*').order('created_at', { ascending: false });
+        if (from && to) {
+          query = query.gte('created_at', from).lte('created_at', to);
+        }
+        const { data, error } = await query;
+        if (error) {
+          setSummariesLoading(false);
+          return;
+        }
+        setSummaries(data);
+        setSummariesLoading(false);
+      };
+      fetchSummaries();
+    } else if (activeTab === 'notes') {
+      const fetchNotes = async () => {
+        setNotesLoading(true);
+        setNotes([]);
+        let query = supabase.from('notes').select('*');
+        if (from && to) {
+          query = query.gte('created_at', from).lte('created_at', to);
+        }
+        const { data, error } = await query;
+        if (error) {
+          setNotesLoading(false);
+          return;
+        }
+        setNotes(data);
+        setNotesLoading(false);
+      };
+      fetchNotes();
+    } else if (activeTab === 'photos') {
+      const fetchPhotos = async () => {
+        setPhotosLoading(true);
+        setPhotos([]);
+        let query = supabase.from('photos').select('*');
+        if (from && to) {
+          query = query.gte('created_at', from).lte('created_at', to);
+        }
+        const { data, error } = await query;
+        if (error) {
+          setPhotosLoading(false);
+          return;
+        }
+        const photosWithDataUrl: PhotoWithUrl[] = await Promise.all(
+          data.map(async (photo) => {
+            try {
+              const { data: fileData, error: fileError } = await supabase.storage.from('photos').download(photo.url);
+              if (fileError || !fileData) {
+                console.log('Download failed for', photo.url, fileError);
+                return { ...photo, dataUrl: null };
+              }
+              const fr = new FileReader();
+              return await new Promise<PhotoWithUrl>((resolve) => {
+                fr.onload = () => {
+                  resolve({ ...photo, dataUrl: fr.result as string });
+                };
+                fr.readAsDataURL(fileData);
+              });
+            } catch (e) {
+              console.log('Exception for', photo.url, e);
+              return { ...photo, dataUrl: null };
+            }
+          })
+        );
+        setPhotos(photosWithDataUrl);
+        setPhotosLoading(false);
+      };
+      fetchPhotos();
+    }
+  }, [activeTab, selectedDate]);
+
+
+
+  const fetchNotes = async () => {
+    setNotesLoading(true);
+    setNotes([]);
+    const { data, error } = await supabase.from('notes').select('*');
+    if (error) {
+      setNotesLoading(false);
+      return;
+    }
+    setNotes(data);
+    setNotesLoading(false);
+  };
+
+  const fetchPhotos = async () => {
+    if (!dialogVisible) return;
+    setPhotosLoading(true);
+    setPhotos([]);
+
+    const { data, error } = await supabase.from('photos').select('*');
+    if (error) {
+      setPhotosLoading(false);
+      return;
+    }
+
+    const photosWithDataUrl: PhotoWithUrl[] = await Promise.all(
+      data.map(async (photo) => {
+        try {
+          const { data: fileData, error: fileError } = await supabase.storage.from('photos').download(photo.url);
+          if (fileError || !fileData) {
+            console.log('Download failed for', photo.url, fileError);
+            return { ...photo, dataUrl: null };
+          }
+          const fr = new FileReader();
+          return await new Promise<PhotoWithUrl>((resolve) => {
+            fr.onload = () => {
+              resolve({ ...photo, dataUrl: fr.result as string });
+            };
+            fr.readAsDataURL(fileData);
+          });
+        } catch (e) {
+          console.log('Exception for', photo.url, e);
+          return { ...photo, dataUrl: null };
+        }
+      })
+    );
+
+    setPhotos(photosWithDataUrl);
+    setPhotosLoading(false);
+  };
 
   const handleGenerateReport = async () => {
     setReportLoading(true);
@@ -241,7 +305,7 @@ export default function RetrieveScreen(props: any) {
       <DynamicDialog
         visible={dialogVisible}
         headerProps={{
-          title: 'June 2, 2025',
+          title: selectedDate,
           rightActionFontSize: 15,
           style: { paddingHorizontal: 16 },
           titleStyle: { color: 'black' },
@@ -252,6 +316,7 @@ export default function RetrieveScreen(props: any) {
         }}
         onClose={() => setDialogVisible(false)}
       >
+       <TabBar activeTab={activeTab} setActiveTab={setActiveTab} uploading={uploading} />
         {photosLoading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
             <Loader />
@@ -261,7 +326,7 @@ export default function RetrieveScreen(props: any) {
         ) : (
           <>
             <View style={{ width: '100%', justifyContent: 'flex-start',   }}>
-              <TabBar activeTab={activeTab} setActiveTab={setActiveTab} uploading={uploading} />
+              
               {/* Tab Content */}
               {activeTab === 'photos' && (
                 <TabContentList
