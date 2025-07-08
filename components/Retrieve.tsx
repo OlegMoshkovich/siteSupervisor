@@ -3,6 +3,7 @@ import {
   View,
   Text,
   Alert,
+  TouchableOpacity,
 } from 'react-native';
 import { supabase } from '../lib/supabase';
 import DropDown from './DropDown';
@@ -40,10 +41,12 @@ export default function RetrieveScreen(props: any) {
   const [summariesLoading, setSummariesLoading] = useState(false);
   const [reportLoading, setReportLoading] = useState(false);
   const [dateOptions, setDateOptions] = useState<string[]>([]);
+  const [datesLoading, setDatesLoading] = useState(false);
 
 
   useEffect(() => {
     const fetchDates = async () => {
+      setDatesLoading(true);
       const tables = ['photos', 'summaries'];
       let allDates: string[] = [];
       for (const table of tables) {
@@ -60,6 +63,7 @@ export default function RetrieveScreen(props: any) {
       // Deduplicate and sort
       const uniqueSortedDates = Array.from(new Set(allDates)).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
       setDateOptions(uniqueSortedDates);
+      setDatesLoading(false);
     };
     fetchDates();
   }, []);
@@ -232,16 +236,42 @@ export default function RetrieveScreen(props: any) {
         />
       </View>
       {selectedProject && (
-        <View style={{ marginTop: 220}}>
-          <DropDown
-            items={dateOptions}
-            selectedItem={selectedDate}
-            placeholder="Select a date"
-            setSelectedItem={(date) => {
-              setSelectedDate(date);
-              setDialogVisible(true);
-            }}
-          />
+        <View style={{ marginTop: 120 }}>
+          {/* Show loader while dates are loading, otherwise show clickable list */}
+          {datesLoading ? (
+            <Loader />
+          ) : dateOptions.length === 0 ? (
+            <Text style={{ textAlign: 'center', color: '#888', marginTop: 16 }}>No dates available.</Text>
+          ) : (
+            dateOptions.map((date) => (
+              <TouchableOpacity
+              onPress={() => {
+                setSelectedDate(date);
+                setDialogVisible(true);
+              }}
+              style={{
+                padding: 12,
+                marginVertical: 4,
+                borderRadius: 20,
+                width: 260,
+                borderWidth: 1,
+                borderColor:  '#ccc',
+                overflow: 'hidden',
+              }}
+              >   
+              <Text
+                key={date}
+                style={{
+                  textAlign: 'center',
+                  fontSize: 16,
+                  color:  '#222',
+                }}
+              >
+                {date}
+              </Text>
+              </TouchableOpacity>
+            ))
+          )}
         </View>
       )}
 
