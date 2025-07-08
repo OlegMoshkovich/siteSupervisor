@@ -8,6 +8,7 @@ import {
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
 import * as ImageManipulator from 'expo-image-manipulator';
+import * as Location from 'expo-location';
 import { supabase } from '../lib/supabase';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -30,6 +31,16 @@ type PhotoWithUrl = {
   dataUrl: string | null;
 };
 
+// Helper to convert Blob to ArrayBuffer using FileReader
+function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as ArrayBuffer);
+    reader.onerror = reject;
+    reader.readAsArrayBuffer(blob);
+  });
+}
+
 export default function MainScreen(props: any) {
   const [selectedProject, setSelectedProject] = useState('Project 1');
   const [uploading, setUploading] = useState(false);
@@ -44,20 +55,24 @@ export default function MainScreen(props: any) {
   const [pendingNoteTitle, setPendingNoteTitle] = useState('');
   const [pendingNoteContent, setPendingNoteContent] = useState('');
   const [savingNote, setSavingNote] = useState(false);
+  const [photoLocation, setPhotoLocation] = useState<{ latitude: number; longitude: number } | null>(null);
 
   const handlePickAndUpload = async () => {
+    console.log('Photo icon pressed');
     setDialogMode('photo');
-    const { status } = await ImagePicker.requestCameraPermissionsAsync();
+    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    console.log('Media library permission status:', status);
     if (status !== 'granted') {
-      Alert.alert('Permission required to access camera!');
+      Alert.alert('Permission required to access media library!');
       return;
     }
 
-    const result = await ImagePicker.launchCameraAsync({
+    const result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
     });
+    console.log('ImagePicker result:', result);
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const image = result.assets[0];
@@ -66,6 +81,21 @@ export default function MainScreen(props: any) {
       setPendingTitle('');
       setPendingNote('');
       setPendingUpload(false);
+      // Get location permission and current location
+      try {
+        const { status: locStatus } = await Location.requestForegroundPermissionsAsync();
+        if (locStatus === 'granted') {
+          const location = await Location.getCurrentPositionAsync({});
+          setPhotoLocation({
+            latitude: location.coords.latitude,
+            longitude: location.coords.longitude,
+          });
+        } else {
+          setPhotoLocation(null);
+        }
+      } catch (e) {
+        setPhotoLocation(null);
+      }
     }
   };
 
@@ -83,8 +113,8 @@ export default function MainScreen(props: any) {
       // Compress the image
       const compressed = await ImageManipulator.manipulateAsync(
         pendingImageUri,
-        [], // no resize, just compress
-        { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG }
+        [],
+        { compress: 0.05, format: ImageManipulator.SaveFormat.JPEG }
       );
       // Get compressed image size
       const compressedResponse = await fetch(compressed.uri);
@@ -92,7 +122,8 @@ export default function MainScreen(props: any) {
       const compressedSize = compressedBlob.size;
       console.log('Compressed image size:', (compressedSize / 1024).toFixed(2), 'KB');
 
-      const arraybuffer = await compressedBlob.arrayBuffer();
+      // Use FileReader to get ArrayBuffer
+      const arraybuffer = await blobToArrayBuffer(compressedBlob);
       const fileExt = compressed.uri.split('.').pop()?.toLowerCase() ?? 'jpeg';
       const filename = `${Date.now()}.${fileExt}`;
 
@@ -120,6 +151,8 @@ export default function MainScreen(props: any) {
           url: uploadData?.path,
           title: pendingTitle,
           note: pendingNote,
+          latitude: photoLocation ? photoLocation.latitude : null,
+          longitude: photoLocation ? photoLocation.longitude : null,
         },
       ]);
 
@@ -137,6 +170,7 @@ export default function MainScreen(props: any) {
       setPendingTitle('');
       setPendingNote('');
       setPendingUpload(false);
+      setPhotoLocation(null);
     }
   };
 
@@ -296,7 +330,7 @@ export default function MainScreen(props: any) {
 
       <MainActionButtons
         buttons={[
-          { icon: 'document-text', onPress: handleOpenNoteDialog, disabled: false },
+          // { icon: 'document-text', onPress: handleOpenNoteDialog, disabled: false },
           { icon: 'camera', onPress: handlePickAndUpload, disabled: uploading },
         ]}
       />

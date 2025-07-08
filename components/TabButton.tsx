@@ -18,7 +18,7 @@ const TabButton: React.FC<TabButtonProps> = ({ icon, active, onPress, label, dis
     style={{
       marginHorizontal: 6,
       marginBottom: 10,
-      width: 90,
+      width: 120,
       height: 30,
       borderRadius: 1000,
       borderWidth: 1,

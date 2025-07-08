@@ -35,10 +35,7 @@ export default function RetrieveScreen(props: any) {
   const [photos, setPhotos] = useState<PhotoWithUrl[]>([]);
   const [photosLoading, setPhotosLoading] = useState(false);
   const [checkedPhotos, setCheckedPhotos] = useState<{ [id: string]: boolean }>({});
-  const [notes, setNotes] = useState<any[]>([]);
-  const [notesLoading, setNotesLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'photos' | 'notes' | 'summaries'>('photos');
-  const [checkedNotes, setCheckedNotes] = useState<{ [id: string]: boolean }>({});
   const [summaries, setSummaries] = useState<any[]>([]);
   const [summariesLoading, setSummariesLoading] = useState(false);
   const [reportLoading, setReportLoading] = useState(false);
@@ -47,7 +44,7 @@ export default function RetrieveScreen(props: any) {
 
   useEffect(() => {
     const fetchDates = async () => {
-      const tables = ['photos', 'notes', 'summaries'];
+      const tables = ['photos', 'summaries'];
       let allDates: string[] = [];
       for (const table of tables) {
         const { data, error } = await supabase.from(table).select('created_at');
@@ -67,144 +64,91 @@ export default function RetrieveScreen(props: any) {
     fetchDates();
   }, []);
 
-  // Helper to get date range for selectedDate
+  // Helper to get date range for selectedDate (in UTC)
   const getDateRange = (selectedDate: string) => {
     if (!selectedDate) return {};
-    // Parse the formatted date string (e.g., 'June 2, 2025')
+    // Parse the formatted date string (e.g., 'July 6, 2025')
     const date = parse(selectedDate, 'MMMM d, yyyy', new Date());
+    // Use UTC start and end of day
+    const from = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0));
+    const to = new Date(Date.UTC(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999));
     return {
-      from: startOfDay(date).toISOString(),
-      to: endOfDay(date).toISOString(),
+      from: from.toISOString(),
+      to: to.toISOString(),
     };
   };
 
+  // Fetch all data for the selected date when dialog opens or date changes
   useEffect(() => {
+    if (!dialogVisible || !selectedDate) return;
     const { from, to } = getDateRange(selectedDate);
-    if (activeTab === 'summaries') {
-      const fetchSummaries = async () => {
-        setSummariesLoading(true);
-        setSummaries([]);
-        let query = supabase.from('summaries').select('*').order('created_at', { ascending: false });
-        if (from && to) {
-          query = query.gte('created_at', from).lte('created_at', to);
-        }
-        const { data, error } = await query;
-        if (error) {
-          setSummariesLoading(false);
-          return;
-        }
-        setSummaries(data);
-        setSummariesLoading(false);
-      };
-      fetchSummaries();
-    } else if (activeTab === 'notes') {
-      const fetchNotes = async () => {
-        setNotesLoading(true);
-        setNotes([]);
-        let query = supabase.from('notes').select('*');
-        if (from && to) {
-          query = query.gte('created_at', from).lte('created_at', to);
-        }
-        const { data, error } = await query;
-        if (error) {
-          setNotesLoading(false);
-          return;
-        }
-        setNotes(data);
-        setNotesLoading(false);
-      };
-      fetchNotes();
-    } else if (activeTab === 'photos') {
-      const fetchPhotos = async () => {
-        setPhotosLoading(true);
-        setPhotos([]);
-        let query = supabase.from('photos').select('*');
-        if (from && to) {
-          query = query.gte('created_at', from).lte('created_at', to);
-        }
-        const { data, error } = await query;
-        if (error) {
-          setPhotosLoading(false);
-          return;
-        }
-        const photosWithDataUrl: PhotoWithUrl[] = await Promise.all(
-          data.map(async (photo) => {
-            try {
-              const { data: fileData, error: fileError } = await supabase.storage.from('photos').download(photo.url);
-              if (fileError || !fileData) {
-                console.log('Download failed for', photo.url, fileError);
-                return { ...photo, dataUrl: null };
-              }
-              const fr = new FileReader();
-              return await new Promise<PhotoWithUrl>((resolve) => {
-                fr.onload = () => {
-                  resolve({ ...photo, dataUrl: fr.result as string });
-                };
-                fr.readAsDataURL(fileData);
-              });
-            } catch (e) {
-              console.log('Exception for', photo.url, e);
+
+    // Fetch photos
+    const fetchPhotos = async () => {
+      setPhotosLoading(true);
+      setPhotos([]);
+      let query = supabase.from('photos').select('*');
+      if (from && to) {
+        query = query.gte('created_at', from).lte('created_at', to);
+      }
+      const { data, error } = await query;
+      if (error) {
+        setPhotosLoading(false);
+        return;
+      }
+      const photosWithDataUrl: PhotoWithUrl[] = await Promise.all(
+        data.map(async (photo) => {
+          try {
+            const { data: fileData, error: fileError } = await supabase.storage.from('photos').download(photo.url);
+            if (fileError || !fileData) {
+              console.log('Download failed for', photo.url, fileError);
               return { ...photo, dataUrl: null };
             }
-          })
-        );
-        setPhotos(photosWithDataUrl);
-        setPhotosLoading(false);
-      };
-      fetchPhotos();
-    }
-  }, [activeTab, selectedDate]);
-
-
-
-  const fetchNotes = async () => {
-    setNotesLoading(true);
-    setNotes([]);
-    const { data, error } = await supabase.from('notes').select('*');
-    if (error) {
-      setNotesLoading(false);
-      return;
-    }
-    setNotes(data);
-    setNotesLoading(false);
-  };
-
-  const fetchPhotos = async () => {
-    if (!dialogVisible) return;
-    setPhotosLoading(true);
-    setPhotos([]);
-
-    const { data, error } = await supabase.from('photos').select('*');
-    if (error) {
-      setPhotosLoading(false);
-      return;
-    }
-
-    const photosWithDataUrl: PhotoWithUrl[] = await Promise.all(
-      data.map(async (photo) => {
-        try {
-          const { data: fileData, error: fileError } = await supabase.storage.from('photos').download(photo.url);
-          if (fileError || !fileData) {
-            console.log('Download failed for', photo.url, fileError);
+            const fr = new FileReader();
+            return await new Promise<PhotoWithUrl>((resolve) => {
+              fr.onload = () => {
+                resolve({ ...photo, dataUrl: fr.result as string });
+              };
+              fr.readAsDataURL(fileData);
+            });
+          } catch (e) {
+            console.log('Exception for', photo.url, e);
             return { ...photo, dataUrl: null };
           }
-          const fr = new FileReader();
-          return await new Promise<PhotoWithUrl>((resolve) => {
-            fr.onload = () => {
-              resolve({ ...photo, dataUrl: fr.result as string });
-            };
-            fr.readAsDataURL(fileData);
-          });
-        } catch (e) {
-          console.log('Exception for', photo.url, e);
-          return { ...photo, dataUrl: null };
-        }
-      })
-    );
+        })
+      );
+      setPhotos(photosWithDataUrl);
+      setPhotosLoading(false);
+    };
 
-    setPhotos(photosWithDataUrl);
-    setPhotosLoading(false);
-  };
+    // Fetch summaries
+    const fetchSummaries = async () => {
+      setSummariesLoading(true);
+      setSummaries([]);
+      let query = supabase.from('summaries').select('*').order('created_at', { ascending: false });
+      if (from && to) {
+        query = query.gte('created_at', from).lte('created_at', to);
+      }
+      const { data, error } = await query;
+      if (error) {
+        setSummariesLoading(false);
+        return;
+      }
+      setSummaries(data);
+      setSummariesLoading(false);
+    };
+
+    fetchPhotos();
+    fetchSummaries();
+  }, [selectedDate, dialogVisible]);
+
+  // Clear data when dialog closes
+  useEffect(() => {
+    if (!dialogVisible) {
+      setPhotos([]);
+      setSummaries([]);
+    }
+  }, [dialogVisible]);
 
   const handleGenerateReport = async () => {
     setReportLoading(true);
@@ -215,14 +159,8 @@ export default function RetrieveScreen(props: any) {
         .map(photo => photo.note || photo.title || '')
         .filter(Boolean);
 
-      // Gather checked note contents/titles
-      const selectedNoteContents = notes
-        .filter(note => checkedNotes[note.id])
-        .map(note => note.content || note.title || '')
-        .filter(Boolean);
-
       // Combine all descriptions
-      const allDescriptions = [...selectedPhotoNotes, ...selectedNoteContents].join('\n');
+      const allDescriptions = [...selectedPhotoNotes].join('\n');
 
       let summary = '';
       try {
@@ -316,85 +254,55 @@ export default function RetrieveScreen(props: any) {
         }}
         onClose={() => setDialogVisible(false)}
       >
-       <TabBar activeTab={activeTab} setActiveTab={setActiveTab} uploading={uploading} />
-        {photosLoading ? (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            <Loader />
-          </View>
-        ) : photos.length === 0 ? (
-          <Text style={{ alignSelf: 'center', marginTop: 0 }}>No photos available.</Text>
-        ) : (
-          <>
-            <View style={{ width: '100%', justifyContent: 'flex-start',   }}>
-              
-              {/* Tab Content */}
-              {activeTab === 'photos' && (
-                <TabContentList
-                  loading={photosLoading}
-                  emptyMessage="No photos available."
-                  items={photos}
-                  renderItem={(photo) => (
-                    <PhotoItem
-                      key={photo.id}
-                      id={photo.id}
-                      dataUrl={photo.dataUrl || ''}
-                      title={photo.title}
-                      note={photo.note}
-                      checked={!!checkedPhotos[photo.id]}
-                      onCheck={(checked) => setCheckedPhotos((prev) => ({ ...prev, [photo.id]: checked }))}
-                    />
-                  )}
-                  scrollViewProps={{ contentContainerStyle: { paddingBottom: 100 } }}
+        <TabBar activeTab={activeTab} setActiveTab={setActiveTab} uploading={uploading} />
+        <View style={{ width: '100%', justifyContent: 'flex-start' }}>
+          {activeTab === 'photos' && (
+            <TabContentList
+              loading={photosLoading}
+              emptyMessage="No photos available."
+              items={photos}
+              renderItem={(photo) => (
+                <PhotoItem
+                  latitude={photo.latitude}
+                  longitude={photo.longitude}
+                  key={photo.id}
+                  id={photo.id}
+                  dataUrl={photo.dataUrl || ''}
+                  title={photo.title}
+                  note={photo.note}
+                  checked={!!checkedPhotos[photo.id]}
+                  onCheck={(checked) => setCheckedPhotos((prev) => ({ ...prev, [photo.id]: checked }))}
                 />
               )}
-              {activeTab === 'notes' && (
-                <TabContentList
-                  loading={notesLoading}
-                  emptyMessage="No notes available."
-                  items={notes}
-                  renderItem={(note) => (
-                    <NoteItem
-                      key={note.id}
-                      id={note.id}
-                      title={note.title}
-                      content={note.content}
-                      checked={!!checkedNotes[note.id]}
-                      onCheck={(checked) => setCheckedNotes((prev) => ({ ...prev, [note.id]: checked }))}
-                    />
-                  )}
-                  scrollViewProps={{ contentContainerStyle: { paddingBottom: 100 } }}
+              scrollViewProps={{ contentContainerStyle: { paddingBottom: 100 } }}
+            />
+          )}
+          {activeTab === 'summaries' && (
+            <TabContentList
+              loading={summariesLoading}
+              emptyMessage="No summaries available."
+              items={summaries}
+              renderItem={(summary) => (
+                <SummaryItem
+                  key={summary.id}
+                  title={summary.title}
+                  summary={summary.summary}
+                  createdAt={summary.created_at}
                 />
               )}
-              {activeTab === 'summaries' && (
-                <TabContentList
-                  loading={summariesLoading}
-                  emptyMessage="No summaries available."
-                  items={summaries}
-                  renderItem={(summary) => (
-                    <SummaryItem
-                      key={summary.id}
-                      title={summary.title}
-                      summary={summary.summary}
-                      createdAt={summary.created_at}
-                    />
-                  )}
-                  scrollViewProps={{ contentContainerStyle: { paddingBottom: 30 } }}
-                />
-              )}
-            </View>
-
-            {/* Generate Report button fixed at the bottom of the dialog */}
-            {(activeTab === 'photos' || activeTab === 'notes') && (
-              <GenerateReportButton
-                onPress={handleGenerateReport}
-                disabled={!(Object.values(checkedPhotos).some(Boolean) || Object.values(checkedNotes).some(Boolean))}
-              />
-            )}
-
-            {/* Loader overlay while generating report */}
-            {reportLoading && <LoaderOverlay />}
-          </>
+              scrollViewProps={{ contentContainerStyle: { paddingBottom: 30 } }}
+            />
+          )}
+        </View>
+        {/* Generate Report button fixed at the bottom of the dialog */}
+        {activeTab === 'photos' && (
+          <GenerateReportButton
+            onPress={handleGenerateReport}
+            disabled={!(Object.values(checkedPhotos).some(Boolean))}
+          />
         )}
+        {/* Loader overlay while generating report */}
+        {reportLoading && <LoaderOverlay />}
       </DynamicDialog>
     </View>
   );

@@ -22,10 +22,10 @@ const MainActionButtons: React.FC<MainActionButtonsProps> = ({ buttons }) => (
         disabled={item.disabled}
         style={{
           margin: 6,
-          width: 91,
-          height: 91,
+          width: 120,
+          height: 120,
           borderRadius: 1000,
-          backgroundColor: '#545251',
+          backgroundColor: colors.secondary,
           borderWidth: 0,
           shadowColor: '#000',
           shadowOffset: { width: 10, height: 10 },
@@ -46,7 +46,7 @@ const MainActionButtons: React.FC<MainActionButtonsProps> = ({ buttons }) => (
             justifyContent: 'center',
           }}
         >
-          <Ionicons name={item.icon as any} size={32} color="white" />
+          <Ionicons name={item.icon as any} size={40} color="white" />
         </View>
       </TouchableOpacity>
     ))}

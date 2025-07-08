@@ -8,10 +8,12 @@ interface PhotoItemProps {
   title?: string;
   note?: string;
   checked: boolean;
+  latitude: number;
+  longitude: number;
   onCheck: (checked: boolean) => void;
 }
 
-const PhotoItem: React.FC<PhotoItemProps> = ({ id, dataUrl, title, note, checked, onCheck }) => {
+const PhotoItem: React.FC<PhotoItemProps> = ({ id, dataUrl, title, note, checked, latitude, longitude, onCheck }) => {
   if (!dataUrl) return null;
   return (
     <View style={{ marginBottom: 24, alignItems: 'center' }}>
@@ -64,6 +66,19 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ id, dataUrl, title, note, checked
         >
           {note}
         </Text>
+      ) : null}
+      {latitude && longitude ? (
+                <Text
+                style={{
+                  width: 300,
+                  fontSize: 12,
+                  color: '#444',
+                  alignSelf: 'center',
+                  marginBottom: 4,
+                }}
+              >
+                {latitude}, {longitude}
+              </Text>
       ) : null}
     </View>
   );

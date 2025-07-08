@@ -29,7 +29,7 @@ const TabContentList: React.FC<TabContentListProps> = ({
     );
   }
   if (!items || items.length === 0) {
-    return <Text style={[{ alignSelf: 'center', marginTop: 0 }, emptyTextStyle]}>{emptyMessage}</Text>;
+    return <Text style={[{ alignSelf: 'center', marginTop: 200, fontSize: 16 }, emptyTextStyle]}>{emptyMessage}</Text>;
   }
   return (
     <ScrollView {...scrollViewProps}>
