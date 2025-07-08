@@ -2,29 +2,23 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
   ScrollView,
-  Dimensions,
   Alert,
-  Image,
 } from 'react-native';
-import Ionicons from 'react-native-vector-icons/Ionicons';
-import * as ImagePicker from 'expo-image-picker';
 import { supabase } from '../lib/supabase';
-import { useNavigation } from '@react-navigation/native';
-import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import DropDown from './DropDown';
 import DynamicDialog from './DynamicDialog';
-import colors from './colors';
-import CheckBox from './CheckBox';
 import Loader from './Loader';
 import Constants from 'expo-constants';
+import { format } from 'date-fns';
+import PhotoItem from './PhotoItem';
+import NoteItem from './NoteItem';
+import SummaryItem from './SummaryItem';
+import TabBar from './TabBar';
+import GenerateReportButton from './GenerateReportButton';
+import LoaderOverlay from './LoaderOverlay';
+import TabContentList from './TabContentList';
 
-// Define the tab param list
-type TabParamList = {
-  Main: undefined;
-  Profile: undefined;
-};
 
 type PhotoWithUrl = {
   id: string;
@@ -35,18 +29,13 @@ type PhotoWithUrl = {
 };
 
 export default function RetrieveScreen(props: any) {
-  const navigation = useNavigation<BottomTabNavigationProp<TabParamList>>();
   const [selectedProject, setSelectedProject] = useState ('Project 1');
   const [uploading, setUploading] = useState(false);
-  const [showSearchBar, setShowSearchBar] = useState(true);
-  const { width } = Dimensions.get('window');
   const [selectedDate, setSelectedDate] = useState('');
   const [dialogVisible, setDialogVisible] = useState(false);
   const [photos, setPhotos] = useState<PhotoWithUrl[]>([]);
   const [photosLoading, setPhotosLoading] = useState(false);
   const [checkedPhotos, setCheckedPhotos] = useState<{ [id: string]: boolean }>({});
-  const [PhotoAccordionOpen, setPhotoAccordionOpen] = useState(false);
-  const [NotesAccordionOpen, setNotesAccordionOpen] = useState(false);
   const [notes, setNotes] = useState<any[]>([]);
   const [notesLoading, setNotesLoading] = useState(false);
   const [activeTab, setActiveTab] = useState<'photos' | 'notes' | 'summaries'>('photos');
@@ -54,66 +43,8 @@ export default function RetrieveScreen(props: any) {
   const [summaries, setSummaries] = useState<any[]>([]);
   const [summariesLoading, setSummariesLoading] = useState(false);
   const [reportLoading, setReportLoading] = useState(false);
+  const [dateOptions, setDateOptions] = useState<string[]>([]);
 
-  const handlePickAndUpload = async () => {
-    const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    if (status !== 'granted') {
-      Alert.alert('Permission required to access photo library!');
-      return;
-    }
-
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      quality: 1,
-    });
-
-    if (!result.canceled && result.assets && result.assets.length > 0) {
-      const image = result.assets[0];
-      try {
-        setUploading(true);
-        const arraybuffer = await fetch(image.uri).then((res) => res.arrayBuffer());
-        const fileExt = image.uri.split('.').pop()?.toLowerCase() ?? 'jpeg';
-        const filename = `${Date.now()}.${fileExt}`;
-
-        const { data: uploadData, error: uploadError } = await supabase.storage
-          .from('photos')
-          .upload(filename, arraybuffer, {
-            contentType: image.mimeType ?? 'image/jpeg',
-          });
-
-        if (uploadError) {
-          Alert.alert('Upload failed', uploadError.message);
-          return;
-        }
-
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          Alert.alert('Upload failed', 'User not authenticated');
-          return;
-        }
-
-        const { error: insertError } = await supabase.from('photos').insert([
-          {
-            project_id: null,
-            user_id: user.id,
-            url: uploadData?.path,
-            metadata: { note: 'Test upload from library' },
-          },
-        ]);
-
-        if (insertError) {
-          Alert.alert('DB insert failed', insertError.message);
-        } else {
-          Alert.alert('Photo uploaded and record created!');
-        }
-      } catch (err: any) {
-        Alert.alert('Upload failed', err.message || 'Unknown error');
-      } finally {
-        setUploading(false);
-      }
-    }
-  };
 
   useEffect(() => {
     const fetchPhotos = async () => {
@@ -188,9 +119,28 @@ export default function RetrieveScreen(props: any) {
     fetchSummaries();
   }, [activeTab]);
 
-  const handleOpenNoteDialog = () => {
-    Alert.alert('Note dialog not implemented yet');
-  };
+  useEffect(() => {
+    const fetchDates = async () => {
+      const tables = ['photos', 'notes', 'summaries'];
+      let allDates: string[] = [];
+      for (const table of tables) {
+        const { data, error } = await supabase.from(table).select('created_at');
+        if (!error && data) {
+          allDates = allDates.concat(
+            data
+              .map((row: any) => row.created_at)
+              .filter(Boolean)
+              .map((date: string) => format(new Date(date), 'MMMM d, yyyy'))
+          );
+        }
+      }
+      // Deduplicate and sort
+      const uniqueSortedDates = Array.from(new Set(allDates)).sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+      setDateOptions(uniqueSortedDates);
+    };
+    fetchDates();
+  }, []);
+
 
   const handleGenerateReport = async () => {
     setReportLoading(true);
@@ -277,7 +227,7 @@ export default function RetrieveScreen(props: any) {
       {selectedProject && (
         <View style={{ marginTop: 220}}>
           <DropDown
-            items={['June 1', 'June 2', 'June 3', 'June 4']}
+            items={dateOptions}
             selectedItem={selectedDate}
             placeholder="Select a date"
             setSelectedItem={(date) => {
@@ -304,7 +254,6 @@ export default function RetrieveScreen(props: any) {
       >
         {photosLoading ? (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-            {/* <ActivityIndicator size="large" color={'#d42a02'} /> */}
             <Loader />
           </View>
         ) : photos.length === 0 ? (
@@ -312,253 +261,73 @@ export default function RetrieveScreen(props: any) {
         ) : (
           <>
             <View style={{ width: '100%', justifyContent: 'flex-start',   }}>
-              {/* Action Buttons */}
-              <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginBottom: 6, marginTop: 6, width: '90%', alignSelf: 'center',  borderRadius: 20, paddingBottom: 0 }}>
-                {[
-                  { icon: 'document-text', onPress: () => { setActiveTab('notes'); }, disabled: false, label: 'Notes' },
-                  { icon: 'camera', onPress: () => { setActiveTab('photos'); }, disabled: uploading, isUploading: true, label: 'Photos' },
-                  { icon: 'book', onPress: () => { setActiveTab('summaries'); }, disabled: false, label: 'Summaries' },
-                ].map((item, idx) => (
-                  <TouchableOpacity
-                    key={idx}
-                    onPress={item.onPress}
-                    disabled={item.disabled}
-                    style={{
-                      marginHorizontal: 6,
-                      marginBottom: 10,
-                      width: 90,
-                      height: 30,
-                      borderRadius: 1000,
-                      borderWidth: 1,
-                      borderColor: colors.primary,
-                      shadowColor: '#000',
-                      shadowOffset: { width: 10, height: 10 },
-                      shadowRadius: 8,
-                      elevation: 8,
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      flexDirection: 'row',
-                    }}
-                  >
-                    <Ionicons
-                      name={item.icon as any}
-                      size={20}
-                      color={
-                        (item.icon === 'document-text' && activeTab === 'notes') ||
-                        (item.icon === 'camera' && activeTab === 'photos') ||
-                        (item.icon === 'book' && activeTab === 'summaries')
-                          ? colors.secondary
-                          : colors.primary
-                      }
-                    />
-                    {/* <Text style={{ marginLeft: 8, color: (item.icon === 'document-text' && activeTab === 'notes') || (item.icon === 'camera' && activeTab === 'photos') || (item.icon === 'book' && activeTab === 'summaries') ? colors.secondary : colors.primary, fontWeight: 'bold' }}>{item.label}</Text> */}
-                  </TouchableOpacity>
-                ))}
-              </View>
-              
-
+              <TabBar activeTab={activeTab} setActiveTab={setActiveTab} uploading={uploading} />
               {/* Tab Content */}
               {activeTab === 'photos' && (
-                <ScrollView  contentContainerStyle={{ paddingBottom: 100 }}>
-                  {photos.map((photo) =>
-                    photo.dataUrl ? (
-                      <View
-                        key={photo.id}
-                        style={{ marginBottom: 24, alignItems: 'center' }}
-                      >
-                        <Image
-                          source={{ uri: photo.dataUrl }}
-                          style={{
-                            width: 300,
-                            height: 300,
-                            marginBottom: 10,
-                            borderRadius: 8,
-                            alignSelf: 'center',
-                          }}
-                        />
-                        {photo.title ? (
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              alignItems: 'center',
-                              width: 300,
-                              alignSelf: 'center',
-                              marginBottom: 4,
-                            }}
-                          >
-                            <Text
-                              style={{
-                                flex: 1,
-                                fontWeight: 'bold',
-                                fontSize: 18,
-                                color: '#222',
-                              }}
-                            >
-                              {photo.title}
-                            </Text>
-                            <CheckBox
-                              checked={!!checkedPhotos[photo.id]}
-                              onChange={(checked) =>
-                                setCheckedPhotos((prev) => ({ ...prev, [photo.id]: checked }))
-                              }
-                              size={20}
-                            />
-                          </View>
-                        ) : null}
-                        {photo.note ? (
-                          <Text
-                            style={{
-                              width: 300,
-                              fontSize: 16,
-                              color: '#444',
-                              alignSelf: 'center',
-                              marginBottom: 4,
-                            }}
-                          >
-                            {photo.note}
-                          </Text>
-                        ) : null}
-                      </View>
-                    ) : null
+                <TabContentList
+                  loading={photosLoading}
+                  emptyMessage="No photos available."
+                  items={photos}
+                  renderItem={(photo) => (
+                    <PhotoItem
+                      key={photo.id}
+                      id={photo.id}
+                      dataUrl={photo.dataUrl || ''}
+                      title={photo.title}
+                      note={photo.note}
+                      checked={!!checkedPhotos[photo.id]}
+                      onCheck={(checked) => setCheckedPhotos((prev) => ({ ...prev, [photo.id]: checked }))}
+                    />
                   )}
-                </ScrollView>
+                  scrollViewProps={{ contentContainerStyle: { paddingBottom: 100 } }}
+                />
               )}
               {activeTab === 'notes' && (
-                <ScrollView contentContainerStyle={{  paddingBottom: 100 }}>
-                  {notesLoading ? (
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 100 }}>
-                      {/* <ActivityIndicator size="large" color={'#d42a02'} /> */}
-                      <Loader />
-                    </View>
-                  ) : notes.length === 0 ? (
-                    <Text style={{ alignSelf: 'center', marginTop: 0 }}>No notes available.</Text>
-                  ) : (
-                    notes.map((note) => (
-                      <View
-                        key={note.id}
-                        style={{ marginBottom: 24, alignItems: 'center' }}
-                      >
-                        <View
-                          style={{
-                            flexDirection: 'row',
-                            alignItems: 'center',
-                            width: 300,
-                            alignSelf: 'center',
-                            marginBottom: 4,
-                          }}
-                        >
-                          <Text
-                            style={{
-                              flex: 1,
-                              fontWeight: 'bold',
-                              fontSize: 18,
-                              color: '#222',
-                         
-                             
-                              paddingRight: 20,
-                            }}
-                          >
-                            {note.title}
-                          </Text>
-                          <CheckBox
-                            checked={!!checkedNotes[note.id]}
-                            onChange={(checked) =>
-                              setCheckedNotes((prev) => ({ ...prev, [note.id]: checked }))
-                            }
-                            size={20}
-                          />
-                        </View>
-                        <Text
-                          style={{
-                            width: 300,
-                            fontSize: 16,
-                            color: '#444',
-                            alignSelf: 'center',
-                            marginBottom: 4,
-                          }}
-                        >
-                          {note.content}
-                        </Text>
-                      </View>
-                    ))
+                <TabContentList
+                  loading={notesLoading}
+                  emptyMessage="No notes available."
+                  items={notes}
+                  renderItem={(note) => (
+                    <NoteItem
+                      key={note.id}
+                      id={note.id}
+                      title={note.title}
+                      content={note.content}
+                      checked={!!checkedNotes[note.id]}
+                      onCheck={(checked) => setCheckedNotes((prev) => ({ ...prev, [note.id]: checked }))}
+                    />
                   )}
-                </ScrollView>
+                  scrollViewProps={{ contentContainerStyle: { paddingBottom: 100 } }}
+                />
               )}
               {activeTab === 'summaries' && (
-                <ScrollView contentContainerStyle={{ paddingBottom: 30 }}>
-                  {summariesLoading ? (
-                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: 100 }}>
-                      <Loader />
-                    </View>
-                  ) : summaries.length === 0 ? (
-                    <Text style={{ alignSelf: 'center', marginTop: 0 }}>No summaries available.</Text>
-                  ) : (
-                    summaries.map((summary) => (
-                      <View key={summary.id} style={{ marginBottom: 24, alignItems: 'center', borderWidth: 1, borderColor: colors.primary, borderRadius: 12, padding: 16, width: 320, alignSelf: 'center', backgroundColor: '#fafafa' }}>
-                        <Text style={{ fontWeight: 'bold', fontSize: 18, color: '#222', marginBottom: 8 }}>{summary.title}</Text>
-                        <Text style={{ fontSize: 16, color: '#444' }}>{summary.summary}</Text>
-                        <Text style={{ fontSize: 12, color: '#888', marginTop: 8 }}>{summary.created_at ? new Date(summary.created_at).toLocaleString() : ''}</Text>
-                      </View>
-                    ))
+                <TabContentList
+                  loading={summariesLoading}
+                  emptyMessage="No summaries available."
+                  items={summaries}
+                  renderItem={(summary) => (
+                    <SummaryItem
+                      key={summary.id}
+                      title={summary.title}
+                      summary={summary.summary}
+                      createdAt={summary.created_at}
+                    />
                   )}
-                </ScrollView>
+                  scrollViewProps={{ contentContainerStyle: { paddingBottom: 30 } }}
+                />
               )}
             </View>
 
             {/* Generate Report button fixed at the bottom of the dialog */}
             {(activeTab === 'photos' || activeTab === 'notes') && (
-              <View
-                style={{
-                  position: 'absolute',
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  alignItems: 'center',
-                  paddingBottom: 2,
-                  paddingTop: 16,
-                  backgroundColor: 'white',
-                }}
-              >
-                <TouchableOpacity
-                  style={{
-                    backgroundColor: colors.secondary,
-                    borderRadius: 100,
-                    paddingVertical: 10,
-                    paddingHorizontal: 28,
-                    shadowColor: '#000',
-                    shadowOffset: { width: 3, height: 3 },
-                    shadowOpacity: 0.2,
-                    shadowRadius: 6,
-                    elevation: 8,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    opacity: Object.values(checkedPhotos).some(Boolean) || Object.values(checkedNotes).some(Boolean) ? 1 : 0.5,
-                  }}
-                  onPress={handleGenerateReport}
-                  disabled={!(Object.values(checkedPhotos).some(Boolean) || Object.values(checkedNotes).some(Boolean))}
-                >
-                  <Text style={{ color: 'white', fontSize: 16 }}>Generate Report</Text>
-                </TouchableOpacity>
-              </View>
+              <GenerateReportButton
+                onPress={handleGenerateReport}
+                disabled={!(Object.values(checkedPhotos).some(Boolean) || Object.values(checkedNotes).some(Boolean))}
+              />
             )}
 
             {/* Loader overlay while generating report */}
-            {reportLoading && (
-              <View style={{
-                position: 'absolute',
-                top: 0,
-                left: 0,
-                right: 0,
-                bottom: 0,
-                backgroundColor: 'rgba(255,255,255,0.8)',
-                justifyContent: 'center',
-                alignItems: 'center',
-                zIndex: 9999,
-              }}>
-                <Loader />
-                {/* <Text style={{ marginTop: 16, fontSize: 16, color: colors.primary }}>Generating report...</Text> */}
-              </View>
-            )}
+            {reportLoading && <LoaderOverlay />}
           </>
         )}
       </DynamicDialog>

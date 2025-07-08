@@ -20,6 +20,9 @@ import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 import DropDown from './DropDown';
 import DynamicDialog from './DynamicDialog';
 import colors from './colors';
+import PhotoUploadDialog from './PhotoUploadDialog';
+import NoteDialog from './NoteDialog';
+import MainActionButtons from './MainActionButtons';
 
 // Define the tab param list
 type TabParamList = {
@@ -253,143 +256,29 @@ export default function MainScreen(props: any) {
           },
         }}
       >
-        {dialogMode === 'photo' && pendingImageUri ? (
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-            <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1, width: '100%' }}>
-              <TextInput
-                placeholder="Add a title (optional)"
-                value={pendingTitle}
-                onChangeText={setPendingTitle}
-                style={{
-                  width: 300,
-                  minHeight: 40,
-                  borderWidth: 1,
-                  borderColor: '#ccc',
-                  borderRadius: 10,
-                  paddingHorizontal: 12,
-                  marginBottom: 16,
-                  fontSize: 16,
-                  backgroundColor: '#fafafa',
-                }}
-                editable={!uploading}
-              />
-              <TextInput
-                placeholder="Add a note (optional)"
-                value={pendingNote}
-                onChangeText={setPendingNote}
-                multiline={true}
-                style={{
-                  width: 300,
-                  minHeight: 80,
-                  borderWidth: 1,
-                  borderColor: '#ccc',
-                  borderRadius: 10,
-                  paddingHorizontal: 12,
-                  marginBottom: 10,
-                  fontSize: 16,
-                  backgroundColor: '#fafafa',
-                }}
-                editable={!uploading}
-              />
-               <TouchableOpacity
-                onPress={handleUpload}
-                style={{
-                  backgroundColor: colors.secondary,
-                  borderRadius: 100,
-                  paddingVertical: 12,
-                  paddingHorizontal: 32,
-                  marginBottom: 8,
-                  marginTop: 0,
-                  shadowColor: '#000',
-                  shadowOffset: { width: 3, height: 3 },
-                  shadowOpacity: 0.2,
-                  shadowRadius: 6,
-                  elevation: 8,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}
-                disabled={uploading}
-              >
-                {uploading ? (
-                  <ActivityIndicator size="small" color={'#fff'} />
-                ) : (
-                  <Text style={{ color: 'white', fontSize: 16 }}>Upload</Text>
-                )}
-              </TouchableOpacity>
-              <Image
-                source={{ uri: pendingImageUri }}
-                style={{ width: 300, height: 300, borderRadius: 12, marginBottom: 16 }}
-                resizeMode="cover"
-              />
-             
-            </View>
-          </TouchableWithoutFeedback>
+        {dialogMode === 'photo' ? (
+          <PhotoUploadDialog
+            visible={dialogVisible && dialogMode === 'photo'}
+            imageUri={pendingImageUri}
+            title={pendingTitle}
+            note={pendingNote}
+            uploading={uploading}
+            onTitleChange={setPendingTitle}
+            onNoteChange={setPendingNote}
+            onUpload={handleUpload}
+            onClose={() => setDialogVisible(false)}
+          />
         ) : dialogMode === 'note' ? (
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-            <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1, width: '100%' }}>
-              <TextInput
-                placeholder="Note title"
-                value={pendingNoteTitle}
-                onChangeText={setPendingNoteTitle}
-                style={{
-                  width: 300,
-                  minHeight: 40,
-                  borderWidth: 1,
-                  borderColor: '#ccc',
-                  borderRadius: 10,
-                  paddingHorizontal: 12,
-                  marginBottom: 16,
-                  fontSize: 16,
-                //   backgroundColor: '#fafafa',
-                }}
-                editable={!savingNote}
-              />
-              <TextInput
-                placeholder="Note content"
-                value={pendingNoteContent}
-                onChangeText={setPendingNoteContent}
-                multiline={true}
-                style={{
-                  width: 300,
-                  minHeight: 160,
-                  borderWidth: 1,
-                  borderColor: '#ccc',
-                  borderRadius: 10,
-                  paddingHorizontal: 12,
-                  marginBottom: 16,
-                  fontSize: 16,
-                //   backgroundColor: '#fafafa',
-                }}
-                editable={!savingNote}
-              />
-              <TouchableOpacity
-                onPress={handleSaveNote}
-                style={{
-                  backgroundColor: colors.secondary,
-                  borderRadius: 100,
-                  paddingVertical: 12,
-                  paddingHorizontal: 32,
-                  marginBottom: 8,
-                  marginTop: 20,
-                  shadowColor: '#000',
-                  shadowOffset: { width: 3, height: 3 },
-                  shadowOpacity: 0.2,
-                  shadowRadius: 6,
-                  elevation: 8,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  opacity: pendingNoteTitle.trim() && pendingNoteContent.trim() ? 1 : 0.5,
-                }}
-                disabled={savingNote || !pendingNoteTitle.trim() || !pendingNoteContent.trim()}
-              >
-                {savingNote ? (
-                  <ActivityIndicator size="small" color={'#fff'} />
-                ) : (
-                  <Text style={{ color: 'white', fontSize: 16 }}>Save Note</Text>
-                )}
-              </TouchableOpacity>
-            </View>
-          </TouchableWithoutFeedback>
+          <NoteDialog
+            visible={dialogVisible && dialogMode === 'note'}
+            title={pendingNoteTitle}
+            content={pendingNoteContent}
+            saving={savingNote}
+            onTitleChange={setPendingNoteTitle}
+            onContentChange={setPendingNoteContent}
+            onSave={handleSaveNote}
+            onClose={() => setDialogVisible(false)}
+          />
         ) : (
           <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1 }}>
             <Text>No photo selected.</Text>
@@ -397,51 +286,12 @@ export default function MainScreen(props: any) {
         )}
       </DynamicDialog>
 
-      <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 200, width: '86%' }}>
-        {selectedProject &&
-          [
-            { icon: 'document-text', onPress: handleOpenNoteDialog, disabled: false },
-            { icon: 'camera', onPress: handlePickAndUpload, disabled: uploading, isUploading: true },
-            // { icon: 'mic', onPress: undefined, disabled: false },
-          ].map((item, idx) => (
-            <TouchableOpacity
-              key={idx}
-              onPress={item.onPress}
-              disabled={item.disabled}
-              style={{
-                margin: 6,     
-                width: 91, // ~5.7em at 16px base
-                height: 91,
-                borderRadius: 1000,
-                backgroundColor: '#545251',
-                borderWidth: 0,
-                // backgroundColor: '#c7c3c0',
-                shadowColor: '#000',
-                shadowOffset: { width: 10, height: 10 },
-                shadowOpacity: 0.2,
-                shadowRadius: 8,
-                elevation: 8,
-                // Simulate inner shadow/highlight with border and overlay
-                // (React Native doesn't support inset shadow, so we approximate)
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <View
-                style={{
-                  width: 90,
-                  height: 90,
-                  borderRadius: 45,
-                  borderColor: colors.primary,
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Ionicons name={item.icon as any} size={32} color="white" />
-              </View>
-            </TouchableOpacity>
-          ))}
-      </View>
+      <MainActionButtons
+        buttons={[
+          { icon: 'document-text', onPress: handleOpenNoteDialog, disabled: false },
+          { icon: 'camera', onPress: handlePickAndUpload, disabled: uploading },
+        ]}
+      />
     </View>
   );
 }

@@ -8,6 +8,7 @@ import {
   TextStyle,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
+import colors from "./colors";
 
 interface DialogHeaderProps {
   title: string | React.ReactNode;
@@ -159,8 +160,8 @@ const styles = StyleSheet.create({
   bottomBorder: {
     width: "90%",
     alignSelf: "center",
-    borderBottomWidth: .2,
-    borderBottomColor: 'grey',
+    borderBottomWidth: .5,
+    borderBottomColor: colors.secondary,
   },
 });
 

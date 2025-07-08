@@ -66,7 +66,6 @@ const DynamicDialog: React.FC<DynamicDialogProps> = ({
             style={{
               flex: 1,
               backgroundColor: 'white',
-              // borderWidth: .5,
               borderColor: 'colors.primary',
               borderTopLeftRadius: 6,
               borderTopRightRadius: 6,
@@ -93,8 +92,6 @@ const styles = StyleSheet.create({
     marginBottom: 87,
     paddingTop: 0,
     paddingHorizontal: 3,
-    // borderWidth: .5,
-    // borderColor: 'colors.primary',
   },
   closeButton: {
     position: "absolute",
