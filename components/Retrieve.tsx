@@ -162,6 +162,11 @@ export default function RetrieveScreen(props: any) {
       // Combine all descriptions
       const allDescriptions = [...selectedPhotoNotes].join('\n');
 
+      // Debug logs
+      console.log('Checked photos:', checkedPhotos);
+      console.log('Selected photo notes:', selectedPhotoNotes);
+      console.log('All descriptions:', allDescriptions);
+
       let summary = '';
       try {
         const apiKey = Constants.expoConfig?.extra?.OPENAI_API_KEY || '';
