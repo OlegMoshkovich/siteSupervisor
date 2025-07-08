@@ -272,6 +272,7 @@ export default function RetrieveScreen(props: any) {
                   note={photo.note}
                   checked={!!checkedPhotos[photo.id]}
                   onCheck={(checked) => setCheckedPhotos((prev) => ({ ...prev, [photo.id]: checked }))}
+                  timestamp={photo.created_at ? format(new Date(photo.created_at), 'PPpp') : undefined}
                 />
               )}
               scrollViewProps={{ contentContainerStyle: { paddingBottom: 100 } }}
