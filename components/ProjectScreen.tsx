@@ -3,6 +3,7 @@ import { View, Image, Dimensions, TouchableOpacity, Text } from 'react-native';
 import ImageZoom from 'react-native-image-pan-zoom';
 import ViewShot from 'react-native-view-shot';
 import DynamicDialog from './DynamicDialog';
+import colors from './colors';
 
 const { width, height } = Dimensions.get('window');
 
@@ -55,8 +56,8 @@ const ProjectScreen = () => {
                 position: 'absolute',
                 left: anchor.x - 15,
                 top: anchor.y - 15,
-                width: 30,
-                height: 30,
+                width: 15,
+                height: 16,
                 borderRadius: 15,
                 borderWidth: 3,
                 borderColor: 'red',
@@ -82,7 +83,7 @@ const ProjectScreen = () => {
       >
         <View
           style={{
-            backgroundColor: '#1976d2',
+            backgroundColor: colors.secondary,
             paddingHorizontal: 32,
             paddingVertical: 10,
             borderRadius: 30,
@@ -100,19 +101,21 @@ const ProjectScreen = () => {
           right: 60,
           alignItems: 'center',
           justifyContent: 'center',
+          opacity: anchor ? 1 : 0.5,
         }}
         onPress={handleCapture}
+        disabled={!anchor}
       >
         <View
           style={{
-            backgroundColor: '#388e3c',
+            backgroundColor: colors.secondary,
             paddingHorizontal: 32,
             paddingVertical: 10,
             borderRadius: 30,
             elevation: 4,
           }}
         >
-          <Text style={{ color: 'white', fontSize: 16 }}>Capture</Text>
+          <Text style={{ color: 'white', fontSize: 16}}>Capture</Text>
         </View>
       </TouchableOpacity>
       {/* DynamicDialog for captured image */}
@@ -120,8 +123,12 @@ const ProjectScreen = () => {
         visible={dialogVisible}
         onClose={() => setDialogVisible(false)}
         headerProps={{
-          title: 'Captured Image',
+            title: 'Project Location',
+          style: { paddingHorizontal: 16 },
+          rightActionFontSize: 15,
+          titleStyle: { color: colors.primary },
           rightActionElement: 'Close',
+        
           onRightAction: () => setDialogVisible(false),
         }}
       >
