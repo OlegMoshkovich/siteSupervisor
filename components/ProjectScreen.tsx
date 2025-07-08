@@ -1,37 +1,54 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { View, Image, Dimensions, TouchableOpacity, Text } from 'react-native';
 import ImageZoom from 'react-native-image-pan-zoom';
+import ViewShot from 'react-native-view-shot';
+import DynamicDialog from './DynamicDialog';
 
 const { width, height } = Dimensions.get('window');
 
 const ProjectScreen = () => {
   const [anchor, setAnchor] = useState<{ x: number; y: number } | null>(null);
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [capturedUri, setCapturedUri] = useState<string | null>(null);
+  const viewShotRef = useRef<any>(null);
 
-  // Handler for image click
-  const handleImageClick = (event: any) => {
-    const { locationX, locationY } = event.nativeEvent;
-    setAnchor({ x: locationX, y: locationY });
+  // Handler for image click from ImageZoom
+  const handleImageClick = (event: { locationX: number; locationY: number }) => {
+    setAnchor({ x: event.locationX, y: event.locationY });
+  };
+
+  // Handler for capture button
+  const handleCapture = async () => {
+    if (viewShotRef.current) {
+      const uri = await viewShotRef.current.capture();
+      setCapturedUri(uri);
+      setDialogVisible(true);
+    }
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: 'white' }}>
-      <ImageZoom
-        cropWidth={width}
-        cropHeight={height}
-        imageWidth={width}
-        imageHeight={height * 0.6}
-        minScale={1}
-        maxScale={4}
-      >
-        <TouchableOpacity
-          activeOpacity={1}
-          style={{ width, height: height * 0.6 }}
-          onPress={handleImageClick}
+      <View style={{ width, height: height * 0.6 }}>
+        <ViewShot
+          ref={viewShotRef}
+          options={{ format: 'png', quality: 1, result: 'tmpfile' }}
+          style={{ width, height: height * 0.6, position: 'absolute', top: 0, left: 0 }}
         >
-          <Image
-            source={require('../assets/project.png')}
-            style={{ width: width, height: height * 0.6, resizeMode: 'contain' }}
-          />
+          // @ts-ignore
+          <ImageZoom
+            cropWidth={width}
+            cropHeight={height * 0.6}
+            imageWidth={width}
+            imageHeight={height * 0.6}
+            minScale={1}
+            maxScale={4}
+            onClick={handleImageClick}
+          >
+            <Image
+              source={require('../assets/project.png')}
+              style={{ width: width, height: height * 0.6, resizeMode: 'contain' }}
+            />
+          </ImageZoom>
           {anchor && (
             <View
               style={{
@@ -48,14 +65,14 @@ const ProjectScreen = () => {
               }}
             />
           )}
-        </TouchableOpacity>
-      </ImageZoom>
+        </ViewShot>
+      </View>
+      {/* Anchor Button */}
       <TouchableOpacity
         style={{
           position: 'absolute',
           bottom: 40,
-          left: 0,
-          right: 0,
+          left: 60,
           alignItems: 'center',
           justifyContent: 'center',
         }}
@@ -67,14 +84,54 @@ const ProjectScreen = () => {
           style={{
             backgroundColor: '#1976d2',
             paddingHorizontal: 32,
-            paddingVertical: 16,
+            paddingVertical: 10,
             borderRadius: 30,
             elevation: 4,
           }}
         >
-          <Text style={{ color: 'white', fontSize: 18, fontWeight: 'bold' }}>Anchor</Text>
+          <Text style={{ color: 'white', fontSize: 16 }}>Anchor</Text>
         </View>
       </TouchableOpacity>
+      {/* Capture Button */}
+      <TouchableOpacity
+        style={{
+          position: 'absolute',
+          bottom: 40,
+          right: 60,
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
+        onPress={handleCapture}
+      >
+        <View
+          style={{
+            backgroundColor: '#388e3c',
+            paddingHorizontal: 32,
+            paddingVertical: 10,
+            borderRadius: 30,
+            elevation: 4,
+          }}
+        >
+          <Text style={{ color: 'white', fontSize: 16 }}>Capture</Text>
+        </View>
+      </TouchableOpacity>
+      {/* DynamicDialog for captured image */}
+      <DynamicDialog
+        visible={dialogVisible}
+        onClose={() => setDialogVisible(false)}
+        headerProps={{
+          title: 'Captured Image',
+          rightActionElement: 'Close',
+          onRightAction: () => setDialogVisible(false),
+        }}
+      >
+        {capturedUri && (
+          <Image
+            source={{ uri: capturedUri }}
+            style={{ width: width * 0.8, height: height * 0.4, alignSelf: 'center', resizeMode: 'contain' }}
+          />
+        )}
+      </DynamicDialog>
     </View>
   );
 };
