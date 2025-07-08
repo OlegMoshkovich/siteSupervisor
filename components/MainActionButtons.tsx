@@ -22,8 +22,8 @@ const MainActionButtons: React.FC<MainActionButtonsProps> = ({ buttons }) => (
         disabled={item.disabled}
         style={{
           margin: 6,
-          width: 120,
-          height: 120,
+          width: 94,
+          height: 94,
           borderRadius: 1000,
           backgroundColor: colors.secondary,
           borderWidth: 0,
