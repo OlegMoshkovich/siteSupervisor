@@ -31,11 +31,11 @@ const ProjectScreen = () => {
         >
           {/* @ts-ignore */}
           <ImageZoom
-            cropWidth={width * 0.9}
-            cropHeight={height * 0.6}
-            imageWidth={width * 0.9}
+            cropWidth={300}
+            cropHeight={300}
+            imageWidth={300}
             imageHeight={height * 0.6}
-            minScale={1}
+            minScale={.1}
             maxScale={4}
           >
             <Image
