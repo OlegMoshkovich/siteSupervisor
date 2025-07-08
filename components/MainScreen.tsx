@@ -2,18 +2,12 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
-  TouchableOpacity,
-  ScrollView,
   Dimensions,
   Alert,
-  ActivityIndicator,
-  Image,
-  TextInput,
-  Keyboard,
-  TouchableWithoutFeedback,
 } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import * as ImagePicker from 'expo-image-picker';
+import * as ImageManipulator from 'expo-image-manipulator';
 import { supabase } from '../lib/supabase';
 import { useNavigation } from '@react-navigation/native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
@@ -37,12 +31,8 @@ type PhotoWithUrl = {
 };
 
 export default function MainScreen(props: any) {
-  const navigation = useNavigation<BottomTabNavigationProp<TabParamList>>();
   const [selectedProject, setSelectedProject] = useState('Project 1');
   const [uploading, setUploading] = useState(false);
-  const [showSearchBar, setShowSearchBar] = useState(true);
-  const { width } = Dimensions.get('window');
-  const [selectedDate, setSelectedDate] = useState('');
   const [dialogVisible, setDialogVisible] = useState(false);
   const [photos, setPhotos] = useState<PhotoWithUrl[]>([]);
   const [photosLoading, setPhotosLoading] = useState(false);
@@ -84,8 +74,26 @@ export default function MainScreen(props: any) {
     setUploading(true);
     setPendingUpload(true);
     try {
-      const arraybuffer = await fetch(pendingImageUri).then((res) => res.arrayBuffer());
-      const fileExt = pendingImageUri.split('.').pop()?.toLowerCase() ?? 'jpeg';
+      // Get original image size
+      const originalResponse = await fetch(pendingImageUri);
+      const originalBlob = await originalResponse.blob();
+      const originalSize = originalBlob.size;
+      console.log('Original image size:', (originalSize / 1024).toFixed(2), 'KB');
+
+      // Compress the image
+      const compressed = await ImageManipulator.manipulateAsync(
+        pendingImageUri,
+        [], // no resize, just compress
+        { compress: 0.5, format: ImageManipulator.SaveFormat.JPEG }
+      );
+      // Get compressed image size
+      const compressedResponse = await fetch(compressed.uri);
+      const compressedBlob = await compressedResponse.blob();
+      const compressedSize = compressedBlob.size;
+      console.log('Compressed image size:', (compressedSize / 1024).toFixed(2), 'KB');
+
+      const arraybuffer = await compressedBlob.arrayBuffer();
+      const fileExt = compressed.uri.split('.').pop()?.toLowerCase() ?? 'jpeg';
       const filename = `${Date.now()}.${fileExt}`;
 
       const { data: uploadData, error: uploadError } = await supabase.storage
