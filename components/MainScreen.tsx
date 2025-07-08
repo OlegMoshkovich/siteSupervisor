@@ -314,18 +314,7 @@ export default function MainScreen(props: any) {
             onUpload={handleUpload}
             onClose={() => setDialogVisible(false)}
           />
-        ) : dialogMode === 'note' ? (
-          <NoteDialog
-            visible={dialogVisible && dialogMode === 'note'}
-            title={pendingNoteTitle}
-            content={pendingNoteContent}
-            saving={savingNote}
-            onTitleChange={setPendingNoteTitle}
-            onContentChange={setPendingNoteContent}
-            onSave={handleSaveNote}
-            onClose={() => setDialogVisible(false)}
-          />
-        ) : (
+        )  : (
           <View style={{ alignItems: 'center', justifyContent: 'center', flex: 1 }}>
             <Text>No photo selected.</Text>
           </View>
