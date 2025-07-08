@@ -20,7 +20,7 @@ export default function TabNavigator({ session }: { session: Session }) {
           let iconName = 'home';
           if (route.name === 'Add') iconName = 'add-circle';
           if (route.name === 'Profile') iconName = 'person';
-          if (route.name === 'Projects') iconName = 'list';
+          if (route.name === 'Projects') iconName = 'settings-outline';
           if (route.name === 'Retrieve') iconName = 'search';
           return <Ionicons name={iconName} size={size} color={color} />;
         },

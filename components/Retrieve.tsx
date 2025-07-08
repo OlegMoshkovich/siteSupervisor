@@ -245,6 +245,7 @@ export default function RetrieveScreen(props: any) {
           ) : (
             dateOptions.map((date) => (
               <TouchableOpacity
+              key={date + 'date'}
               onPress={() => {
                 setSelectedDate(date);
                 setDialogVisible(true);
