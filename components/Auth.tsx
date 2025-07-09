@@ -89,11 +89,11 @@ export default function Auth() {
                 style={[styles.customButton,
               {
                 backgroundColor: colors.secondary,
-                shadowColor: '#000',
-                shadowOffset: { width: 3, height: 3 },
-                shadowOpacity: 0.2,
-                shadowRadius: 6,
-                elevation: 8,
+                // shadowColor: '#000',
+                // shadowOffset: { width: 3, height: 3 },
+                // shadowOpacity: 0.2,
+                // shadowRadius: 6,
+                // elevation: 8,
                 justifyContent: 'center',
                 alignItems: 'center',
                 }]}
