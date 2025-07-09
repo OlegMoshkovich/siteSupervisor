@@ -12,9 +12,12 @@ interface PhotoItemProps {
   longitude: number;
   onCheck: (checked: boolean) => void;
   timestamp?: string;
+  anchor?: { x: number; y: number } | null;
+  labels?: string[];
+  takenAt?: string | null;
 }
 
-const PhotoItem: React.FC<PhotoItemProps> = ({ id, dataUrl, title, note, checked, latitude, longitude, onCheck, timestamp }) => {
+const PhotoItem: React.FC<PhotoItemProps> = ({ id, dataUrl, title, note, checked, latitude, longitude, onCheck, timestamp, anchor, labels, takenAt }) => {
   if (!dataUrl) return null;
   return (
     <View style={{ marginBottom: 24, alignItems: 'center' }}>
@@ -28,6 +31,48 @@ const PhotoItem: React.FC<PhotoItemProps> = ({ id, dataUrl, title, note, checked
           alignSelf: 'center',
         }}
       />
+      {/* Taken at info */}
+      {takenAt && (
+        <Text
+          style={{
+            width: 300,
+            fontSize: 12,
+            color: '#388E3C',
+            alignSelf: 'center',
+            marginBottom: 4,
+          }}
+        >
+          Taken: {takenAt}
+        </Text>
+      )}
+      {/* Anchor info */}
+      {anchor && (
+        <Text
+          style={{
+            width: 300,
+            fontSize: 12,
+            color: '#444',
+            alignSelf: 'center',
+            marginBottom: 4,
+          }}
+        >
+          Anchor: x={anchor.x.toFixed(3)}, y={anchor.y.toFixed(3)}
+        </Text>
+      )}
+      {/* Labels info */}
+      {labels && labels.length > 0 && (
+        <Text
+          style={{
+            width: 300,
+            fontSize: 12,
+            color: '#1976D2',
+            alignSelf: 'center',
+            marginBottom: 4,
+          }}
+        >
+          Labels: {labels.join(', ')}
+        </Text>
+      )}
       {title ? (
         <View
           style={{

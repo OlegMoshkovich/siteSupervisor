@@ -37,9 +37,9 @@ export default function TabNavigator({ session }: { session: Session }) {
       <Tab.Screen name="Retrieve">
         {props => <RetrieveScreen {...props} session={session} />}
       </Tab.Screen>
-      <Tab.Screen name="Projects">
+      {/* <Tab.Screen name="Projects">
         {() => <ProjectScreen />}
-      </Tab.Screen>
+      </Tab.Screen> */}
       <Tab.Screen name="Profile">
         {props => <ProfileScreen {...props} session={session} />}
       </Tab.Screen>

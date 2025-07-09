@@ -43,6 +43,13 @@ function blobToArrayBuffer(blob: Blob): Promise<ArrayBuffer> {
   });
 }
 
+function exifDateToPostgres(dateStr: string | null) {
+  // EXIF: "YYYY:MM:DD HH:MM:SS"
+  // Postgres: "YYYY-MM-DD HH:MM:SS"
+  if (!dateStr) return null;
+  return dateStr.replace(/^(\d{4}):(\d{2}):(\d{2})/, '$1-$2-$3');
+}
+
 export default function MainScreen(props: any) {
   const [selectedProject, setSelectedProject] = useState('Project 1');
   const [uploading, setUploading] = useState(false);
@@ -58,6 +65,7 @@ export default function MainScreen(props: any) {
   const [pendingNoteContent, setPendingNoteContent] = useState('');
   const [savingNote, setSavingNote] = useState(false);
   const [photoLocation, setPhotoLocation] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [pendingTakenAt, setPendingTakenAt] = useState<string | null>(null);
 
   const handlePickAndUpload = async () => {
     console.log('Photo icon pressed');
@@ -73,11 +81,16 @@ export default function MainScreen(props: any) {
       mediaTypes: ImagePicker.MediaTypeOptions.Images,
       allowsEditing: true,
       quality: 1,
+      exif: true,
     });
     console.log('ImagePicker result:', result);
 
     if (!result.canceled && result.assets && result.assets.length > 0) {
       const image = result.assets[0];
+      // Extract taken date from EXIF
+      const takenAtRaw = image.exif?.DateTimeOriginal || image.exif?.DateTime || null;
+      const takenAt = exifDateToPostgres(takenAtRaw);
+      setPendingTakenAt(takenAt);
       setPendingImageUri(image.uri);
       setDialogVisible(true);
       setPendingTitle('');
@@ -144,7 +157,8 @@ export default function MainScreen(props: any) {
     }
   };
 
-  const handleUpload = async () => {
+  // Update handleUpload to accept anchor and labels
+  const handleUpload = async ({ anchor, labels }: { anchor: { x: number; y: number } | null; labels: string[] }) => {
     if (!pendingImageUri) return;
     setUploading(true);
     setPendingUpload(true);
@@ -189,17 +203,28 @@ export default function MainScreen(props: any) {
         return;
       }
 
+      console.log('anchor', anchor);
+      console.log('labels', labels);
+      console.log('pendingNote', pendingNote);
+      console.log('photoLocation', photoLocation);
+      console.log('pendingTitle', pendingTitle);
+      console.log('pendingUpload', pendingUpload);
+      console.log('uploading', uploading);
       const { error: insertError } = await supabase.from('photos').insert([
         {
           project_id: null,
           user_id: user.id,
           url: uploadData?.path,
-          title: pendingTitle,
           note: pendingNote,
           latitude: photoLocation ? photoLocation.latitude : null,
           longitude: photoLocation ? photoLocation.longitude : null,
+          anchor: anchor ? { x: anchor.x, y: anchor.y } : null,
+          labels: labels,
+          taken_at: pendingTakenAt,
         },
       ]);
+
+      
 
       if (insertError) {
         Alert.alert('DB insert failed', insertError.message);
@@ -216,6 +241,7 @@ export default function MainScreen(props: any) {
       setPendingNote('');
       setPendingUpload(false);
       setPhotoLocation(null);
+      setPendingTakenAt(null);
     }
   };
 

@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { View, Image, Dimensions, TouchableOpacity, Text } from 'react-native';
+import { View, Image, Dimensions, TouchableOpacity, Text, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import ImageZoom from 'react-native-image-pan-zoom';
 import ViewShot from 'react-native-view-shot';
 import DynamicDialog from './DynamicDialog';
@@ -7,10 +7,17 @@ import colors from './colors';
 
 const { width, height } = Dimensions.get('window');
 
-const PlanWidget = () => {
+interface PlanWidgetProps {
+  onAnchorChange?: (anchor: { x: number; y: number } | null) => void;
+}
+
+const PlanWidget: React.FC<PlanWidgetProps> = ({ onAnchorChange }) => {
   const [dialogVisible, setDialogVisible] = useState(false);
   const [capturedUri, setCapturedUri] = useState<string | null>(null);
   const viewShotRef = useRef<any>(null);
+  const [anchor, setAnchor] = useState<{ x: number; y: number } | null>(null);
+  const imageWidth = 320;
+  const imageHeight = height * 0.6;
 
   // Handler for capture button
   const handleCapture = async () => {
@@ -21,9 +28,18 @@ const PlanWidget = () => {
     }
   };
 
+  // Handle tap to set anchor
+  const handleImageTap = (event: any) => {
+    const { locationX, locationY } = event.nativeEvent;
+    const anchorPos = { x: locationX / imageWidth, y: locationY / imageHeight };
+    setAnchor(anchorPos);
+    if (onAnchorChange) onAnchorChange(anchorPos);
+    console.log('Anchor dropped at:', anchorPos);
+  };
+
   return (
-    <View style={{ backgroundColor: 'white' }}>
-      <View style={{ width: 345, height: 160,borderWidth: 1, borderColor: colors.primary, borderRadius: 8, overflow: 'hidden', alignSelf: 'center' }}>
+    <View style={{ backgroundColor: 'white', width: '100%', height: 300 }}>
+      <View style={{ width: '96%', height: 300, borderWidth: 1, borderColor: colors.primary, borderRadius: 8, overflow: 'hidden', alignSelf: 'center' }}>
         <ViewShot
           ref={viewShotRef}
           options={{ format: 'png', quality: 1, result: 'tmpfile' }}
@@ -31,33 +47,39 @@ const PlanWidget = () => {
         >
           {/* @ts-ignore */}
           <ImageZoom
-            cropWidth={340}
-            cropHeight={160}
-            imageWidth={300}
-            imageHeight={height * 0.6}
-            minScale={.1}
-            maxScale={4}
+            cropWidth={imageWidth}
+            cropHeight={300}
+            imageWidth={imageWidth}
+            imageHeight={imageHeight}
+            minScale={1}
+            maxScale={1}
           >
-            <Image
-              source={require('../assets/project.png')}
-              style={{ width: width * 0.9, height: height * 0.6, resizeMode: 'contain' }}
-            />
+            <TouchableWithoutFeedback onPress={handleImageTap}>
+              <View style={{ width: imageWidth, height: imageHeight }}>
+                <Image
+                  source={require('../assets/project.png')}
+                  style={{ width: imageWidth, height: imageHeight, resizeMode: 'contain' }}
+                />
+                {/* Render anchor if set */}
+                {anchor && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      left: anchor.x * imageWidth - 7.5,
+                      top: anchor.y * imageHeight - 8,
+                      width: 12,
+                      height: 12,
+                      borderRadius: 15,
+                      borderWidth: 3,
+                      borderColor: 'red',
+                      backgroundColor: 'rgba(255,0,0,0.2)',
+                      pointerEvents: 'none',
+                    }}
+                  />
+                )}
+              </View>
+            </TouchableWithoutFeedback>
           </ImageZoom>
-          {/* Fixed anchor in the center */}
-          <View
-            style={{
-              position: 'absolute',
-              left: 340 / 2 - 7.5,
-              top: 160 / 2 - 8,
-              width: 15,
-              height: 16,
-              borderRadius: 15,
-              borderWidth: 3,
-              borderColor: 'red',
-              backgroundColor: 'rgba(255,0,0,0.2)',
-              pointerEvents: 'none',
-            }}
-          />
         </ViewShot>
       </View>
       <DynamicDialog

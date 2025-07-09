@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Image, Keyboard, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, ActivityIndicator, Image, Keyboard, TouchableWithoutFeedback, ScrollView } from 'react-native';
 import colors from './colors';
 import PlanWidget from './PlanWidget';
 
@@ -9,7 +9,7 @@ interface PhotoUploadDialogProps {
   note: string;
   uploading: boolean;
   onNoteChange: (text: string) => void;
-  onUpload: () => void;
+  onUpload: (data: { anchor: { x: number; y: number } | null; labels: string[] }) => void;
   onClose: () => void;
 }
 
@@ -22,11 +22,27 @@ const PhotoUploadDialog: React.FC<PhotoUploadDialogProps> = ({
   onUpload,
   onClose,
 }) => {
+  // Steps: 1 = photo, 2 = note, 3 = plan, 4 = labels
   const [step, setStep] = useState(1);
+  const [selectedLabels, setSelectedLabels] = useState<string[]>([]);
+  const [anchor, setAnchor] = useState<{ x: number; y: number } | null>(null);
 
-  // Reset step when dialog is closed
+  // Pills data
+  const roomLabels = ['Room 1', 'Room 2', 'Room 3', 'Room 4'];
+  const statusLabels = ['Delivered', 'Installed', 'Demolished', 'Fastened'];
+  const toggleLabel = (label: string) => {
+    setSelectedLabels((prev) =>
+      prev.includes(label) ? prev.filter((l) => l !== label) : [...prev, label]
+    );
+  };
+
+  // Reset step, anchor, and labels when dialog is closed
   useEffect(() => {
-    if (!visible) setStep(1);
+    if (!visible) {
+      setStep(1);
+      setAnchor(null);
+      setSelectedLabels([]);
+    }
   }, [visible]);
 
   if (!visible || !imageUri) return null;
@@ -37,23 +53,19 @@ const PhotoUploadDialog: React.FC<PhotoUploadDialogProps> = ({
           <>
             <Image
               source={{ uri: imageUri }}
-              style={{ width: 345, height: 300, borderRadius: 12, marginBottom: 10 }}
+              style={{ width: '90%', height: 300, borderRadius: 4, marginBottom: 10 }}
               resizeMode="cover"
             />
             <TouchableOpacity
               onPress={() => setStep(2)}
               style={{
-                backgroundColor: colors.primary,
+                backgroundColor: colors.secondary,
                 borderRadius: 100,
                 paddingVertical: 12,
                 paddingHorizontal: 32,
                 marginBottom: 4,
                 marginTop: 10,
-                shadowColor: '#000',
-                shadowOffset: { width: 3, height: 3 },
-                shadowOpacity: 0.2,
-                shadowRadius: 6,
-                elevation: 8,
+                
                 justifyContent: 'center',
                 alignItems: 'center',
               }}
@@ -65,28 +77,71 @@ const PhotoUploadDialog: React.FC<PhotoUploadDialogProps> = ({
         )}
         {step === 2 && (
           <>
-            <TextInput
-              placeholder="Add a note (optional)"
-              value={note}
-              onChangeText={onNoteChange}
-              multiline={true}
-              style={{
-                width: 340,
-                minHeight: 80,
-                borderWidth: 1,
-                borderColor: '#ccc',
-                borderRadius: 10,
-                paddingHorizontal: 12,
-                marginBottom: 16,
-                fontSize: 16,
-                backgroundColor: '#fafafa',
-              }}
-              editable={!uploading}
-            />
+          <View style={{ flexDirection: 'row', marginTop: 10, justifyContent: 'space-between', width: '90%' }}>
+            <PlanWidget onAnchorChange={setAnchor} />
+          </View>
+          
+          <TouchableOpacity
+             onPress={() => setStep(3)}
+             style={{
+               backgroundColor: colors.secondary,
+               borderRadius: 100,
+               paddingVertical: 12,
+               paddingHorizontal: 32,
+               marginBottom: 4,
+               marginTop: 120,
+               elevation: 8,
+               justifyContent: 'center',
+               alignItems: 'center',
+             }}
+             disabled={uploading}
+           >
+             <Text style={{ color: 'white', fontSize: 16 }}>Next</Text>
+           </TouchableOpacity>
+        </>
+        )}
+        {step === 3 && (
+          <>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginTop: 12, borderBottomWidth: .5, borderBottomColor: colors.secondary, borderRadius: 4, paddingBottom:50,  width: '90%', alignSelf: 'center'  }}>
+              {roomLabels.map((label) => (
+                <TouchableOpacity
+                  key={label}
+                  onPress={() => toggleLabel(label)}
+                  style={{
+                    backgroundColor: selectedLabels.includes(label) ? '#1976D2' : 'white',
+                    borderColor: '#1976D2',
+                    borderWidth: 1,
+                    borderRadius: 20,
+                    paddingHorizontal: 14,
+                    paddingVertical: 6,
+                    margin: 4,
+                  }}
+                >
+                  <Text style={{ color: selectedLabels.includes(label) ? 'white' : '#1976D2', fontWeight: 'bold' }}>{label}</Text>
+                </TouchableOpacity>
+              ))}
+              {statusLabels.map((label) => (
+                <TouchableOpacity
+                  key={label}
+                  onPress={() => toggleLabel(label)}
+                  style={{
+                    backgroundColor: selectedLabels.includes(label) ? '#388E3C' : 'white',
+                    borderColor: '#388E3C',
+                    borderWidth: 1,
+                    borderRadius: 20,
+                    paddingHorizontal: 14,
+                    paddingVertical: 6,
+                    margin: 4,
+                  }}
+                >
+                  <Text style={{ color: selectedLabels.includes(label) ? 'white' : '#388E3C', fontWeight: 'bold' }}>{label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
             <TouchableOpacity
-              onPress={() => setStep(3)}
+              onPress={() => setStep(4)}
               style={{
-                backgroundColor: colors.primary,
+                backgroundColor: colors.secondary,
                 borderRadius: 100,
                 paddingVertical: 12,
                 paddingHorizontal: 32,
@@ -106,13 +161,29 @@ const PhotoUploadDialog: React.FC<PhotoUploadDialogProps> = ({
             </TouchableOpacity>
           </>
         )}
-        {step === 3 && (
+        {step === 4 && (
           <>
-            <View style={{ flexDirection: 'row', marginTop: 10, justifyContent: 'space-between', width: '90%' }}>
-              <PlanWidget />
-            </View>
+            <TextInput
+              placeholder="Add a note (optional)"
+              value={note}
+              onChangeText={onNoteChange}
+              multiline={true}
+              style={{
+                width: '90%',
+                minHeight: 200,
+                borderWidth: 1,
+                borderColor: '#ccc',
+                borderRadius: 4,
+                paddingHorizontal: 12,
+                marginBottom: 16,
+                fontSize: 16,
+                backgroundColor: '#fafafa',
+              }}
+              editable={!uploading}
+            />
+            
             <TouchableOpacity
-              onPress={onUpload}
+              onPress={() => onUpload({ anchor, labels: selectedLabels })}
               style={{
                 backgroundColor: colors.secondary,
                 borderRadius: 100,
