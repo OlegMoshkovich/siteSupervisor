@@ -18,6 +18,8 @@ import colors from './colors';
 import PhotoUploadDialog from './PhotoUploadDialog';
 import NoteDialog from './NoteDialog';
 import MainActionButtons from './MainActionButtons';
+import ProjectScreen from './ProjectScreen';
+import PlanWidget from './PlanWidget';
 
 // Define the tab param list
 type TabParamList = {
